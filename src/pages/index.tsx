@@ -1,28 +1,15 @@
 import Layout from '../components/Layout';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { getContent, ContentData } from '../utils/content';
 
 export default function Home() {
-  const recentAnnouncements = [
-    {
-      title: "Community Clean-up Drive",
-      date: "March 15, 2024",
-      description: "Join us for our monthly community clean-up drive. Meet at the barangay hall at 7:00 AM.",
-      category: "Event"
-    },
-    {
-      title: "Free Medical Check-up",
-      date: "March 20, 2024",
-      description: "Free medical check-up for senior citizens and PWDs. Bring your barangay ID.",
-      category: "Health"
-    },
-    {
-      title: "Road Closure Notice",
-      date: "March 10, 2024",
-      description: "Main street will be closed for maintenance from March 12-14. Please use alternate routes.",
-      category: "Notice"
-    }
-  ];
+  const [content, setContent] = useState<ContentData | null>(null);
+
+  useEffect(() => {
+    setContent(getContent());
+  }, []);
 
   return (
     <Layout>
@@ -42,8 +29,13 @@ export default function Home() {
               </div>
             </div>
             <h1 className="text-2xl md:text-6xl font-bold mb-6">
-              Welcome to Barangay 828 SK Council Official Website
+              {content?.heroTitle || "Welcome to Barangay 828 SK Council Official Website"}
             </h1>
+            {content?.heroSubtitle && (
+              <p className="text-xl md:text-2xl mb-6 text-blue-100">
+                {content.heroSubtitle}
+              </p>
+            )}
           
             <Link href="/projects" className="bg-white text-blue-900 px-8 py-3 rounded-md font-semibold hover:bg-blue-100 transition duration-300">
               Our Projects
@@ -61,7 +53,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {recentAnnouncements.map((announcement, index) => (
+          {(content?.announcements || []).map((announcement, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">{announcement.title}</h3>
@@ -90,8 +82,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <p className="text-gray-600 mb-6">
-                Barangay 828 is committed to providing excellent public service and maintaining a safe, 
-                peaceful, and progressive community for all its residents.
+                {content?.aboutText || "Barangay 828 is committed to providing excellent public service and maintaining a safe, peaceful, and progressive community for all its residents."}
               </p>
               <Link href="/about" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition duration-300">
                 Learn More

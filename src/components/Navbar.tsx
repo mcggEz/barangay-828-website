@@ -48,6 +48,12 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                href="/admin/login"
+                className="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-md text-sm"
+              >
+                Admin
+              </Link>
             </div>
           </div>
 
@@ -85,6 +91,12 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/admin/login"
+              className="block bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-md text-sm"
+            >
+              Admin
+            </Link>
           </div>
         </div>
       )}
