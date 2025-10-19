@@ -51,27 +51,60 @@ body {
 /* Mobile responsiveness for chat */
 @media (max-width: 640px) {
   .chat-container {
-    width: calc(100vw - 2rem) !important;
-    height: calc(100vh - 4rem) !important;
+    width: calc(100vw - 0.5rem) !important;
+    height: calc(100vh - 1rem) !important;
     max-width: none !important;
-    max-height: calc(100vh - 4rem) !important;
-    bottom: 0 !important;
-    right: 1rem !important;
-    left: 1rem !important;
-    z-index: 9999 !important;
+    max-height: calc(100vh - 1rem) !important;
+    bottom: 0.25rem !important;
+    right: 0.25rem !important;
+    left: 0.25rem !important;
+    z-index: 10000 !important;
+    position: fixed !important;
   }
   
   .chat-button-container {
-    bottom: 1rem !important;
-    right: 1rem !important;
-    z-index: 9999 !important;
+    bottom: 0.75rem !important;
+    right: 0.75rem !important;
+    z-index: 10000 !important;
+    position: fixed !important;
   }
   
   /* Back to top button positioning on mobile */
   .back-to-top-mobile {
-    bottom: 5rem !important;
+    bottom: 6rem !important;
     right: 1rem !important;
     z-index: 30 !important;
+  }
+  
+  /* Ensure chat is visible on mobile */
+  .chat-container * {
+    z-index: 10001 !important;
+  }
+  
+  /* Force visibility on mobile */
+  .chat-container {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Mobile chat button improvements */
+  .chat-button-container button {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 20px !important;
+  }
+  
+  /* Mobile message improvements */
+  .chat-container .message-bubble {
+    max-width: 95% !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Mobile input improvements */
+  .chat-container input {
+    font-size: 0.75rem !important;
+    padding: 0.5rem !important;
   }
 }
 

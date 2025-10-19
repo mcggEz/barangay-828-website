@@ -35,14 +35,12 @@ export default function Home() {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            {content?.heroTitle || "Serving the Community of Barangay 828"}
+            Welcome to Barangay 828 SK Council Official Website
           </h1>
           
-          {content?.heroSubtitle && (
-            <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-              {content.heroSubtitle}
-            </p>
-          )}
+          <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+          Your official source for announcements, services, and information. We are committed to building a safe, prosperous, and united community.
+          </p>
           
           {/* Newsletter CTA in Hero */}
           <div className="max-w-xl mx-auto mt-6">

@@ -136,7 +136,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Back to Top Button */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-20 right-6 bg-yellow-400 p-3 rounded-full shadow-lg hover:bg-yellow-300 transition-all duration-300 z-30 back-to-top-mobile ${
+        className={`fixed bottom-24 right-6 bg-yellow-400 p-3 rounded-full shadow-lg hover:bg-yellow-300 transition-all duration-300 z-30 back-to-top-mobile ${
           showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
         }`}
         aria-label="Back to top"

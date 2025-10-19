@@ -1,6 +1,5 @@
 import Layout from '../components/Layout';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function Projects() {
   const projects = [
@@ -72,55 +71,9 @@ export default function Projects() {
     }
   ];
 
-  const laws = [
-    {
-      title: "Republic Act No. 10742",
-      description: "Sangguniang Kabataan Reform Act of 2015",
-      keyPoints: [
-        "Mandates transparency in all SK activities and financial transactions",
-        "Requires regular reporting of projects and programs",
-        "Establishes the SK Development Fund",
-        "Sets guidelines for SK budget allocation and utilization"
-      ]
-    },
-    {
-      title: "Local Government Code of 1991",
-      description: "Book III, Title I, Chapter 7",
-      keyPoints: [
-        "Defines the powers and functions of the SK",
-        "Establishes the SK as a youth development council",
-        "Outlines the SK's role in local governance",
-        "Sets guidelines for SK elections and organization"
-      ]
-    }
-  ];
+  // Transparency details removed per request
 
-  const financialReports = [
-    {
-      title: "SK Development Fund 2024",
-      period: "January - March 2024",
-      amount: "₱100,000.00",
-      status: "Active",
-      details: [
-        "Youth Development Programs: ₱40,000",
-        "Community Projects: ₱35,000",
-        "Administrative Expenses: ₱15,000",
-        "Emergency Fund: ₱10,000"
-      ]
-    },
-    {
-      title: "SK Development Fund 2023",
-      period: "October - December 2023",
-      amount: "₱100,000.00",
-      status: "Completed",
-      details: [
-        "Youth Leadership Training: ₱30,000",
-        "Community Clean-up Drive: ₱25,000",
-        "Sports Development: ₱25,000",
-        "Administrative Expenses: ₱20,000"
-      ]
-    }
-  ];
+  // Financial reports removed per request
 
   return (
     <Layout>
