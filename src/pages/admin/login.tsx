@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 // Minimal admin page without site navbar/footer
 
 export default function AdminLogin() {
@@ -59,7 +60,7 @@ export default function AdminLogin() {
       </button>
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-2xl m-4">
         <div className="text-center">
-          <img src="/sk-logo.png" alt="Barangay 828 Seal" className="w-20 h-20 mx-auto rounded-full border-4" style={{ borderColor: '#FFC107' }} />
+          <Image src="/sk-logo.png" alt="Barangay 828 Seal" width={80} height={80} className="mx-auto rounded-full border-4" style={{ borderColor: '#FFC107' }} />
           <h2 className="mt-4 text-3xl font-bold text-gray-900">Admin Panel Login</h2>
           <p className="mt-2 text-sm text-gray-600">Welcome back! Please enter your credentials.</p>
         </div>

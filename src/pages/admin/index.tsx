@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 // Minimal admin page without site navbar/footer
 import { getContent, saveContent, ContentData } from '../../utils/content';
 
@@ -74,7 +75,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState<ContentData>(getContent());
   const [activeTab, setActiveTab] = useState('home');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -220,7 +221,7 @@ export default function AdminDashboard() {
       {sidebarOpen && (
         <aside className="w-64 flex-shrink-0 bg-blue-900 text-white flex flex-col">
           <div className="flex items-center justify-center h-20 border-b border-blue-800 px-4">
-            <img src="/sk-logo.png" alt="Barangay 828 Seal" className="h-10 w-10 rounded-full" />
+            <Image src="/sk-logo.png" alt="Barangay 828 Seal" width={40} height={40} className="rounded-full" />
             <span className="ml-3 text-xl font-bold">Admin Panel</span>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-2">
