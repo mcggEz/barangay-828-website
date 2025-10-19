@@ -8,6 +8,33 @@ export interface ContentData {
     description: string;
     category: string;
   }>;
+  projects: Array<{
+    title: string;
+    description: string;
+    status: string;
+    image?: string;
+  }>;
+  contactInfo: {
+    address: string;
+    phone: string;
+    email: string;
+    hours: string;
+  };
+  chatbotPrompts: {
+    welcomeMessage: string;
+    defaultResponses: Array<{
+      keyword: string;
+      response: string;
+    }>;
+  };
+  documents: Array<{
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    uploadDate: string;
+    description: string;
+  }>;
 }
 
 const defaultContent: ContentData = {
@@ -33,7 +60,43 @@ const defaultContent: ContentData = {
       description: "Main street will be closed for maintenance from March 12-14. Please use alternate routes.",
       category: "Notice"
     }
-  ]
+  ],
+  projects: [
+    {
+      title: "Youth Development Program",
+      description: "Comprehensive program for youth skills development and leadership training.",
+      status: "Ongoing"
+    },
+    {
+      title: "Community Garden Initiative",
+      description: "Establishing community gardens to promote sustainable living and food security.",
+      status: "Planning"
+    }
+  ],
+  contactInfo: {
+    address: "Barangay 828, Metro Manila, Philippines",
+    phone: "+63 2 1234 5678",
+    email: "info@barangay828.gov.ph",
+    hours: "Monday - Friday: 8:00 AM - 5:00 PM"
+  },
+  chatbotPrompts: {
+    welcomeMessage: "Magandang araw! Ako ang inyong Barangay Assistant. Paano ko kayo matutulungan ngayon?",
+    defaultResponses: [
+      {
+        keyword: "hours",
+        response: "Ang aming opisina ay bukas mula Lunes hanggang Biyernes, 8:00 AM hanggang 5:00 PM."
+      },
+      {
+        keyword: "contact",
+        response: "Maaari kayong makipag-ugnayan sa amin sa +63 2 1234 5678 o sa info@barangay828.gov.ph"
+      },
+      {
+        keyword: "services",
+        response: "Nagbibigay kami ng mga serbisyo tulad ng barangay clearance, business permit, at iba pang dokumento."
+      }
+    ]
+  },
+  documents: []
 };
 
 export const getContent = (): ContentData => {

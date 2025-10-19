@@ -10,7 +10,10 @@ export default function Projects() {
       image: "/sk-logo.png",
       status: "Ongoing",
       date: "January 2024 - Present",
-      category: "Education"
+      category: "Education",
+      budget: "₱30,000.00",
+      beneficiaries: "50 youth leaders",
+      impact: "Enhanced leadership skills and community engagement"
     },
     {
       title: "Community Garden Initiative",
@@ -18,7 +21,10 @@ export default function Projects() {
       image: "/sk-logo.png",
       status: "Completed",
       date: "December 2023",
-      category: "Environment"
+      category: "Environment",
+      budget: "₱25,000.00",
+      beneficiaries: "200 residents",
+      impact: "Improved community cleanliness and environmental awareness"
     },
     {
       title: "Digital Literacy Program",
@@ -26,7 +32,10 @@ export default function Projects() {
       image: "/sk-logo.png",
       status: "Ongoing",
       date: "February 2024 - Present",
-      category: "Technology"
+      category: "Technology",
+      budget: "₱40,000.00",
+      beneficiaries: "100 youth and seniors",
+      impact: "Enhanced digital skills and internet literacy"
     },
     {
       title: "Sports Development Program",
@@ -34,7 +43,10 @@ export default function Projects() {
       image: "/sk-logo.png",
       status: "Ongoing",
       date: "January 2024 - Present",
-      category: "Sports"
+      category: "Sports",
+      budget: "₱25,000.00",
+      beneficiaries: "150 youth",
+      impact: "Improved physical fitness and community bonding"
     },
     {
       title: "Arts and Culture Festival",
@@ -42,7 +54,10 @@ export default function Projects() {
       image: "/sk-logo.png",
       status: "Upcoming",
       date: "April 2024",
-      category: "Culture"
+      category: "Culture",
+      budget: "₱35,000.00",
+      beneficiaries: "300 community members",
+      impact: "Cultural preservation and community celebration"
     },
     {
       title: "Environmental Awareness Campaign",
@@ -50,7 +65,60 @@ export default function Projects() {
       image: "/sk-logo.png",
       status: "Ongoing",
       date: "March 2024 - Present",
-      category: "Environment"
+      category: "Environment",
+      budget: "₱20,000.00",
+      beneficiaries: "250 residents",
+      impact: "Increased environmental awareness and sustainable practices"
+    }
+  ];
+
+  const laws = [
+    {
+      title: "Republic Act No. 10742",
+      description: "Sangguniang Kabataan Reform Act of 2015",
+      keyPoints: [
+        "Mandates transparency in all SK activities and financial transactions",
+        "Requires regular reporting of projects and programs",
+        "Establishes the SK Development Fund",
+        "Sets guidelines for SK budget allocation and utilization"
+      ]
+    },
+    {
+      title: "Local Government Code of 1991",
+      description: "Book III, Title I, Chapter 7",
+      keyPoints: [
+        "Defines the powers and functions of the SK",
+        "Establishes the SK as a youth development council",
+        "Outlines the SK's role in local governance",
+        "Sets guidelines for SK elections and organization"
+      ]
+    }
+  ];
+
+  const financialReports = [
+    {
+      title: "SK Development Fund 2024",
+      period: "January - March 2024",
+      amount: "₱100,000.00",
+      status: "Active",
+      details: [
+        "Youth Development Programs: ₱40,000",
+        "Community Projects: ₱35,000",
+        "Administrative Expenses: ₱15,000",
+        "Emergency Fund: ₱10,000"
+      ]
+    },
+    {
+      title: "SK Development Fund 2023",
+      period: "October - December 2023",
+      amount: "₱100,000.00",
+      status: "Completed",
+      details: [
+        "Youth Leadership Training: ₱30,000",
+        "Community Clean-up Drive: ₱25,000",
+        "Sports Development: ₱25,000",
+        "Administrative Expenses: ₱20,000"
+      ]
     }
   ];
 
@@ -58,56 +126,54 @@ export default function Projects() {
     <Layout>
       <div className="bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">SK Projects & Initiatives</h1>
+          <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">Gallery & Transparency</h1>
 
-          {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900">{project.title}</h2>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      project.status === 'Ongoing' ? 'bg-green-100 text-green-800' :
-                      project.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {project.status}
-                    </span>
+          {/* Gallery Grid */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold mb-8 text-gray-900">Community Gallery</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {projects.map((project, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
+                  <div className="relative h-48">
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                  <p className="text-gray-900 mb-4">{project.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                      {project.category}
-                    </span>
-                    <span className="text-sm text-gray-900">{project.date}</span>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-semibold text-gray-900">{project.title}</h3>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        project.status === 'Ongoing' ? 'bg-green-100 text-green-800' :
+                        project.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {project.status}
+                      </span>
+                    </div>
+                    <p className="text-gray-900 mb-4">{project.description}</p>
+                    <div className="space-y-2 mb-4">
+                      <p className="text-lg font-bold text-blue-600">{project.budget}</p>
+                      <p className="text-sm text-gray-600"><span className="font-semibold">Beneficiaries:</span> {project.beneficiaries}</p>
+                      <p className="text-sm text-gray-600"><span className="font-semibold">Impact:</span> {project.impact}</p>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                        {project.category}
+                      </span>
+                      <span className="text-sm text-gray-900">{project.date}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          {/* Call to Action */}
-          <div className="mt-16 text-center">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Want to Get Involved?</h2>
-            <p className="text-gray-900 mb-8">
-              Join us in making a difference in our community. There are many ways to participate in our projects and initiatives.
-            </p>
-            <Link
-              href="/contact"
-              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 transition duration-300"
-            >
-              Contact Us to Volunteer
-            </Link>
-          </div>
+          {/* Removed SK Laws, Mandates, and Financial Reports per request */}
+
+          {/* Removed CTA section per request */}
         </div>
       </div>
     </Layout>

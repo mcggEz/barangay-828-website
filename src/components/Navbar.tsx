@@ -7,11 +7,9 @@ const Navbar = () => {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/projects', label: 'Projects' },
     { href: '/announcements', label: 'Announcements' },
-    { href: '/transparency', label: 'Transparency' },
-    { href: '/contact', label: 'Contact' }
+    { href: '/gallery', label: 'Gallery' },
+    { href: '/grievance', label: 'Grievance' }
   ];
 
   return (
@@ -48,12 +46,6 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/admin/login"
-                className="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-md text-sm"
-              >
-                Admin
-              </Link>
             </div>
           </div>
 
@@ -91,12 +83,6 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/admin/login"
-              className="block bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-md text-sm"
-            >
-              Admin
-            </Link>
           </div>
         </div>
       )}
