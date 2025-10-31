@@ -1,6 +1,5 @@
 import Navbar from './Navbar';
 import ChatButton from './ChatButton';
-import Link from 'next/link';
 import { ReactNode, useState, useEffect } from 'react';
 
 interface LayoutProps {
@@ -23,7 +22,6 @@ const Layout = ({ children }: LayoutProps) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Newsletter now links to a dedicated page; no local form handling here
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,8 +32,8 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* Footer */}
       <footer className="bg-gray-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-3 gap-8">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-16 lg:py-20">
+          <div className="grid md:grid-cols-2 gap-10">
             {/* Contact Information */}
             <div className="animate-fade-in-up">
               <h4 className="text-lg font-semibold mb-4 border-l-4 border-yellow-400 pl-3">
@@ -80,29 +78,24 @@ const Layout = ({ children }: LayoutProps) => {
                     <p className="text-gray-400 text-sm">Sangguniang Kabataan</p>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Newsletter */}
-            <div className="animate-fade-in-up">
-              <h4 className="text-lg font-semibold mb-4 border-l-4 border-yellow-400 pl-3">Newsletter</h4>
-              <p className="text-gray-400 text-sm mb-4">Get updates from the SK Council.</p>
-              <Link href="/newsletter" className="inline-flex items-center justify-center bg-yellow-400 text-blue-900 px-5 py-2 rounded-md font-semibold hover:bg-yellow-300">
-                Join Newsletter
-              </Link>
-              {/* Socials under newsletter */}
-              <div className="mt-4 flex items-center gap-3">
-                <a
-                  href="https://www.facebook.com/profile.php?id=61553500932941"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-500 transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
-                    <path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24h11.494v-9.294H9.847V11.01h2.972V8.414c0-2.943 1.796-4.547 4.42-4.547 1.257 0 2.337.093 2.651.135v3.073h-1.82c-1.428 0-1.704.679-1.704 1.676v2.26h3.408l-.444 3.696h-2.964V24h5.813C23.407 24 24 23.407 24 22.675V1.325C24 .593 23.407 0 22.675 0z" />
-                  </svg>
-                </a>
+                {/* Facebook Link */}
+                <div className="flex items-center space-x-3 pt-2">
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61553500932941"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-500 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
+                      <path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24h11.494v-9.294H9.847V11.01h2.972V8.414c0-2.943 1.796-4.547 4.42-4.547 1.257 0 2.337.093 2.651.135v3.073h-1.82c-1.428 0-1.704.679-1.704 1.676v2.26h3.408l-.444 3.696h-2.964V24h5.813C23.407 24 24 23.407 24 22.675V1.325C24 .593 23.407 0 22.675 0z" />
+                    </svg>
+                  </a>
+                  <div>
+                    <p className="text-gray-300">Follow us on Facebook</p>
+                    <p className="text-gray-400 text-sm">Stay connected</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -127,7 +120,7 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
           
           {/* Copyright Section */}
-          <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="border-t border-gray-700 mt-12 pt-8 text-center text-sm text-gray-400 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <p>&copy; {new Date().getFullYear()} Barangay 828 Sangguniang Kabataan Council, City of Manila. All Rights Reserved.</p>
           </div>
         </div>
