@@ -59,7 +59,7 @@ export default function Grievance() {
   return (
     <Layout>
       <div className="bg-gray-50 min-h-screen">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-3xl mx-auto px-2 sm:px-3 lg:px-4 py-16">
           <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">Grievance Form</h1>
           <p className="text-center text-gray-600 mb-10">
             Use this form to submit complaints, suggestions, or requests to the Sangguniang Kabataan Council of Barangay 828.

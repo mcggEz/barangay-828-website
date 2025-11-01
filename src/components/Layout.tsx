@@ -32,7 +32,7 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* Footer */}
       <footer className="bg-gray-800 text-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-16 lg:py-20">
           <div className="grid md:grid-cols-2 gap-10">
             {/* Contact Information */}
             <div className="animate-fade-in-up">

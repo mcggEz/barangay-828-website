@@ -14,38 +14,32 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white min-h-[calc(100vh-4rem)] flex items-center overflow-hidden shadow-lg">
+      <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white min-h-[calc(100vh-4rem)] flex items-end overflow-hidden shadow-lg">
         {/* Background Shapes */}
         <div className="absolute -top-16 left-1/3 w-96 h-40 bg-blue-700 rounded-full opacity-30 blur-3xl rotate-12"></div>
         <div className="absolute -bottom-12 right-16 w-72 h-32 bg-violet-600 rounded-full opacity-25 blur-3xl -rotate-6"></div>
         <div className="absolute inset-0 bg-black opacity-20 pointer-events-none"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-transparent pointer-events-none"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-fade-in-up">
-            {/* Logo removed */}
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-5 animate-fade-in-up tracking-tight font-poppins drop-shadow-lg" style={{ animationDelay: '0.2s' }}>
-            Welcome to Barangay 828 SK Council
+        <div className="relative max-w-7xl mx-auto px-0 text-left pb-8 sm:pb-12 md:pb-16 lg:pb-20 w-full">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.95] tracking-tight">
+            <span className="block">Welcome to</span>
+            <span className="block mt-1 sm:mt-2">Barangay 828 SK Council</span>
           </h1>
-          <p className="text-lg md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto animate-fade-in-up font-montserrat tracking-wide" style={{ animationDelay: '0.4s' }}>
-            Your trusted source for SK updates, youth empowerment, and transparency for a better, brighter Barangay 828.
-          </p>
-          {/* Explore Announcements button removed */}
         </div>
       </section>
 
       {/* Transparency Commitment Intro */}
       <section className="py-20 lg:py-24 bg-white">
-        <div className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-10">
+        <div className="max-w-5xl mx-auto px-2 sm:px-3 lg:px-4">
           <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-white to-blue-50/50 shadow-sm p-10 md:p-12 text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-extrabold text-blue-900 tracking-tight">Welcome to the Transparency Portal</h2>
-            <p className="text-blue-900/80 leading-relaxed font-montserrat text-base md:text-lg">
+            <p className="text-blue-900/80 leading-relaxed text-base md:text-lg">
               This website is our public window into the work of the Sangguniang Kabataan. View plans, programs, and
               activities; track updates and reports; and understand how public resources are used to serve our barangay.
               Our goal is to strengthen trust through openness, involve more young people in local governance, and make
               information simple, accurate, and accessible to everyone.
             </p>
-            <p className="text-blue-900/70 leading-relaxed italic font-montserrat">
+            <p className="text-blue-900/70 leading-relaxed italic">
               In line with the SK Reform Act (Republic Act No. 10742) and the Local Government Code of 1991, this site
               supports transparency, youth participation, and public access to information.
             </p>
@@ -54,15 +48,15 @@ export default function Home() {
       </section>
 
       {/* Divider */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
         <div className="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent my-6 lg:my-10" />
       </div>
 
       {/* Recent Announcements Section */}
       <section id="announcements" className="py-20 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
           <div className="text-center mb-14 animate-fade-in-up">
-            <h2 className="text-4xl font-extrabold font-poppins text-blue-900 mb-3 tracking-tight">Latest Announcements</h2>
+            <h2 className="text-4xl font-extrabold text-blue-900 mb-3 tracking-tight">Latest Announcements</h2>
             <p className="text-lg text-blue-700 font-medium">Stay updated on news and upcoming events in our barangay.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -79,11 +73,11 @@ export default function Home() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-blue-900 font-poppins text-lg">{announcement.title}</p>
+                    <p className="font-semibold text-blue-900 text-lg">{announcement.title}</p>
                     <p className="text-xs text-blue-700 font-medium">{announcement.date}</p>
                   </div>
                 </div>
-                <p className="text-blue-900 mb-5 font-montserrat line-clamp-3 min-h-[60px]">{announcement.description}</p>
+                <p className="text-blue-900 mb-5 line-clamp-3 min-h-[60px]">{announcement.description}</p>
                 <div className="flex justify-between items-center text-sm">
                   <span className="px-3 py-1 bg-yellow-200 text-blue-900 rounded-full font-semibold">
                     {announcement.category}
@@ -105,7 +99,7 @@ export default function Home() {
 
       {/* Officials Section */}
       <section className="py-20 lg:py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
           <div className="text-center mb-14 animate-fade-in-up">
             <h2 className="text-4xl font-extrabold text-blue-900 mb-3 tracking-tight">Sangguniang Kabataan Officials</h2>
             <p className="text-blue-800/80">Meet the dedicated youth leaders of our community.</p>
