@@ -1,5 +1,4 @@
 import Layout from '../components/Layout';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { getContent, ContentData } from '../utils/content';
@@ -52,8 +51,7 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
           <div className="relative z-10 max-w-4xl">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight mb-6">
-              Welcome to<br />
-              <span className="text-yellow-300">Barangay 828 SK Council</span>
+              Welcome to Barangay 828 SK Council Official Website
             </h1>
             <p className="text-lg md:text-xl text-blue-100 leading-relaxed">
               Your trusted source for SK updates, youth empowerment, and transparency for a better, brighter Barangay 828.

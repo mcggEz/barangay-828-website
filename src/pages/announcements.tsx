@@ -3,12 +3,10 @@ import { useState, useEffect } from 'react';
 import { getContent, ContentData } from '../utils/content';
 
 export default function Announcements() {
-  const [content, setContent] = useState<ContentData | null>(null);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<ContentData['announcements']>([]);
 
   useEffect(() => {
     const data = getContent();
-    setContent(data);
     setAnnouncements(data?.announcements || []);
   }, []);
 
