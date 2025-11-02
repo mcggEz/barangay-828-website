@@ -39,7 +39,15 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section - Blue Background */}
-      <section className="relative bg-blue-900 text-white overflow-hidden min-h-[calc(100vh-4rem)] flex items-center">
+      <section 
+        className="relative text-white overflow-hidden min-h-[calc(100vh-4rem)] flex items-center"
+        style={{
+          backgroundColor: '#0D47A1',
+          backgroundImage: 'linear-gradient(to bottom right, rgba(13, 71, 161, 0.95), rgba(5, 43, 102, 1))',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
           <div className="relative z-10 max-w-4xl">
@@ -161,6 +169,23 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Transparency Section */}
+      <section className="bg-gray-50 py-16 lg:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-xl p-8 lg:p-12 border border-gray-200 shadow-sm">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+              Welcome to the Transparency Website of the SK of Barangay 828!
+            </h2>
+            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+              This website is our public window into the work of the Sangguniang Kabataan. Here you can easily view plans, programs, and activities; track updates and reports; and understand how public resources are used to serve our barangay. Our goal is to strengthen trust through openness, involve more young people in local governance, and make information simple, accurate, and accessible to everyone.
+            </p>
+            <p className="text-gray-600 italic leading-relaxed">
+              In line with the SK Reform Act (Republic Act No. 10742) and the Local Government Code of 1991, this site supports transparency, youth participation, and public access to information.
+            </p>
           </div>
         </div>
       </section>
