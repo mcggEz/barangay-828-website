@@ -1,64 +1,64 @@
 import Layout from '../components/Layout';
+import { useState, useEffect } from 'react';
+import { getContent, ContentData } from '../utils/content';
 
 export default function Announcements() {
-  const announcements = [
-    {
-      title: "Community Clean-up Drive",
-      date: "March 15, 2024",
-      description: "Join us for our monthly community clean-up drive. Meet at the barangay hall at 7:00 AM.",
-      category: "Event"
-    },
-    {
-      title: "Free Medical Check-up",
-      date: "March 20, 2024",
-      description: "Free medical check-up for senior citizens and PWDs. Bring your barangay ID.",
-      category: "Health"
-    },
-    {
-      title: "Road Closure Notice",
-      date: "March 10, 2024",
-      description: "Main street will be closed for maintenance from March 12-14. Please use alternate routes.",
-      category: "Notice"
-    },
-    {
-      title: "Vaccination Schedule",
-      date: "March 5, 2024",
-      description: "COVID-19 vaccination schedule for the month of March. Please check the schedule at the barangay hall.",
-      category: "Health"
-    }
-  ];
+  const [content, setContent] = useState<ContentData | null>(null);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+
+  useEffect(() => {
+    const data = getContent();
+    setContent(data);
+    setAnnouncements(data?.announcements || []);
+  }, []);
+
+  if (announcements.length === 0) {
+    return (
+      <Layout>
+        <div className="bg-gray-50 min-h-screen">
+          <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-16">
+            <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">Announcements</h1>
+            <div className="text-center text-gray-600">No announcements available at the moment.</div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
-      <div className="bg-gray-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-16">
+      <div className="bg-gray-50 min-h-screen py-16">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
           <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">Announcements</h1>
 
           {/* Announcements List */}
           <div className="space-y-6">
             {announcements.map((announcement, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-lg">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold mb-2 text-gray-900">{announcement.title}</h2>
-                    <p className="text-gray-900">{announcement.description}</p>
+              <div 
+                key={index} 
+                className="bg-white rounded-lg shadow-md border border-gray-200 p-6 md:p-8 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-3">
+                      <span className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">
+                        {announcement.category}
+                      </span>
+                      <span className="text-sm text-gray-500">{announcement.date}</span>
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                      {announcement.title}
+                    </h2>
                   </div>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                    {announcement.category}
-                  </span>
                 </div>
-                <div className="text-sm text-gray-900">
-                  Posted on: {announcement.date}
-                </div>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  {announcement.description}
+                </p>
               </div>
             ))}
           </div>
-
-          {/* Newsletter removed per request */}
-
         </div>
       </div>
     </Layout>
   );
-} 
-     
+}
