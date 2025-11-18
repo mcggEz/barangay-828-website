@@ -1,14 +1,43 @@
 import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
-import { getContent, ContentData } from '../utils/content';
+import { Announcement } from '../lib/supabase';
 
 export default function Announcements() {
-  const [announcements, setAnnouncements] = useState<ContentData['announcements']>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const data = getContent();
-    setAnnouncements(data?.announcements || []);
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('/api/announcements');
+        if (response.ok) {
+          const data = await response.json();
+          setAnnouncements(data);
+        } else {
+          console.error('Failed to fetch announcements');
+        }
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
   }, []);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="bg-gray-50 min-h-screen">
+          <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-16">
+            <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">Announcements</h1>
+            <div className="text-center text-gray-600">Loading announcements...</div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (announcements.length === 0) {
     return (
@@ -31,9 +60,9 @@ export default function Announcements() {
 
           {/* Announcements List */}
           <div className="space-y-6">
-            {announcements.map((announcement, index) => (
+            {announcements.map((announcement) => (
               <div 
-                key={index} 
+                key={announcement.id} 
                 className="bg-white rounded-lg shadow-md border border-gray-200 p-6 md:p-8 hover:shadow-lg transition-shadow"
               >
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">

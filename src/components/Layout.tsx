@@ -33,7 +33,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Footer */}
       <footer className="bg-gray-800 text-white">
         <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-16 lg:py-20">
-          <div className="grid md:grid-cols-2 gap-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {/* Contact Information */}
             <div className="animate-fade-in-up">
               <h4 className="text-lg font-semibold mb-4 border-l-4 border-yellow-400 pl-3">
@@ -78,29 +78,57 @@ const Layout = ({ children }: LayoutProps) => {
                     <p className="text-gray-400 text-sm">Sangguniang Kabataan</p>
                   </div>
                 </div>
-                {/* Facebook Link */}
-                <div className="flex items-center space-x-3 pt-2">
+              </div>
+            </div>
+
+            {/* Social Media & Quick Links */}
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <h4 className="text-lg font-semibold mb-4 border-l-4 border-yellow-400 pl-3">
+                Connect With Us
+              </h4>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
                   <a
                     href="https://www.facebook.com/profile.php?id=61553500932941"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
-                    className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-500 transition-colors"
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
                       <path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24h11.494v-9.294H9.847V11.01h2.972V8.414c0-2.943 1.796-4.547 4.42-4.547 1.257 0 2.337.093 2.651.135v3.073h-1.82c-1.428 0-1.704.679-1.704 1.676v2.26h3.408l-.444 3.696h-2.964V24h5.813C23.407 24 24 23.407 24 22.675V1.325C24 .593 23.407 0 22.675 0z" />
                     </svg>
                   </a>
                   <div>
-                    <p className="text-gray-300">Follow us on Facebook</p>
+                    <p className="text-gray-300 font-medium">Follow us on Facebook</p>
                     <p className="text-gray-400 text-sm">Stay connected</p>
                   </div>
+                </div>
+                <div className="pt-4">
+                  <h5 className="text-md font-semibold mb-3 text-gray-200">Quick Links</h5>
+                  <ul className="space-y-2">
+                    <li>
+                      <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors">Home</a>
+                    </li>
+                    <li>
+                      <a href="/announcements" className="text-gray-300 hover:text-yellow-400 transition-colors">Announcements</a>
+                    </li>
+                    <li>
+                      <a href="/gallery" className="text-gray-300 hover:text-yellow-400 transition-colors">Gallery</a>
+                    </li>
+                    <li>
+                      <a href="/projects" className="text-gray-300 hover:text-yellow-400 transition-colors">Projects</a>
+                    </li>
+                    <li>
+                      <a href="/grievance" className="text-gray-300 hover:text-yellow-400 transition-colors">Grievance</a>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
 
             {/* Our Location */}
-            <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <h4 className="text-lg font-semibold mb-4 border-l-4 border-yellow-400 pl-3">
                 Our Location
               </h4>
