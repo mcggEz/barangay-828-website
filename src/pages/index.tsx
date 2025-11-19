@@ -2,32 +2,22 @@ import Layout from '../components/Layout';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Announcement } from '../lib/supabase';
+import { GetServerSideProps } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
-export default function Home() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
+const categoryStyles: Record<string, string> = {
+  Health: 'bg-green-100 text-green-800 border border-green-200',
+  Event: 'bg-purple-100 text-purple-800 border border-purple-200',
+  Notice: 'bg-amber-100 text-amber-800 border border-amber-200',
+  General: 'bg-blue-100 text-blue-800 border border-blue-200',
+};
+
+interface HomePageProps {
+  announcements: Announcement[];
+}
+
+export default function Home({ announcements }: HomePageProps) {
   const [announcementIndex, setAnnouncementIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const response = await fetch('/api/announcements');
-        if (response.ok) {
-          const data = await response.json();
-          // Get the latest 3 announcements for the carousel
-          setAnnouncements(data.slice(0, 3));
-        } else {
-          console.error('Failed to fetch announcements');
-        }
-      } catch (error) {
-        console.error('Error fetching announcements:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAnnouncements();
-  }, []);
 
   const nextAnnouncement = () => {
     if (announcements.length > 0) {
@@ -111,82 +101,88 @@ export default function Home() {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="text-center text-gray-600 py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-4">Loading announcements...</p>
-            </div>
-          ) : announcements.length > 0 ? (
+          {announcements.length > 0 ? (
             <div className="relative">
-              {/* Carousel Container */}
-              <div className="relative overflow-hidden rounded-xl bg-white border border-gray-200 shadow-lg">
+              <div className="mb-6 flex flex-wrap gap-4 text-sm text-gray-600">
+                
+             
+              </div>
+              <div className="relative rounded-3xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 p-8 md:p-12 text-white shadow-2xl overflow-hidden">
+                <div className="absolute -top-16 -right-10 w-56 h-56 bg-white/20 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+                <div className="absolute -bottom-20 -left-12 w-48 h-48 bg-indigo-400/30 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+
                 <div
-                  className="flex transition-transform duration-500 ease-in-out"
+                  className="relative flex transition-transform duration-500 ease-in-out"
                   style={{ transform: `translateX(-${announcementIndex * 100}%)` }}
                 >
                   {announcements.map((announcement) => (
                     <div
                       key={announcement.id}
-                      className="min-w-full px-8 py-12 md:px-12 md:py-16"
+                      className="min-w-full px-4 md:px-8"
                     >
                       <div className="max-w-4xl mx-auto">
-                        <div className="flex items-start justify-between mb-6">
-                          <span className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">
-                            {announcement.category}
-                          </span>
-                          <span className="text-sm text-gray-500">{announcement.date}</span>
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8 text-white/90">
+                          <div className="flex items-center gap-4 flex-wrap">
+                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${categoryStyles[announcement.category] || 'bg-white/10 text-white border border-white/20'}`}>
+                              {announcement.category}
+                            </span>
+                            <span className="text-sm flex items-center gap-2">
+                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              {announcement.date}
+                            </span>
+                          </div>
                         </div>
-                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
                           {announcement.title}
                         </h3>
-                        <p className="text-lg text-gray-700 leading-relaxed">
+                        <p className="text-lg md:text-xl text-white/80 leading-relaxed">
                           {announcement.description}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
+
+                {announcements.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevAnnouncement}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur text-white rounded-full p-4 shadow-2xl hover:bg-white/30 transition-colors z-10 border border-white/30"
+                      aria-label="Previous announcement"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={nextAnnouncement}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur text-white rounded-full p-4 shadow-2xl hover:bg-white/30 transition-colors z-10 border border-white/30"
+                      aria-label="Next announcement"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+
+                    <div className="flex justify-center items-center gap-2 mt-8">
+                      {announcements.map((announcement, index) => (
+                        <button
+                          key={announcement.id}
+                          onClick={() => setAnnouncementIndex(index)}
+                          className={`h-2 rounded-full transition-all ${
+                            index === announcementIndex
+                              ? 'bg-white w-12'
+                              : 'bg-white/40 hover:bg-white/70 w-3'
+                          }`}
+                          aria-label={`Go to announcement ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-
-              {/* Navigation Controls */}
-              {announcements.length > 1 && (
-                <>
-                  <button
-                    onClick={prevAnnouncement}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-colors z-10 border border-gray-200"
-                    aria-label="Previous announcement"
-                  >
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={nextAnnouncement}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-colors z-10 border border-gray-200"
-                    aria-label="Next announcement"
-                  >
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-
-                  {/* Dots Indicator */}
-                  <div className="flex justify-center items-center gap-2 mt-6">
-                    {announcements.map((announcement, index) => (
-                      <button
-                        key={announcement.id}
-                        onClick={() => setAnnouncementIndex(index)}
-                        className={`h-2 rounded-full transition-all ${
-                          index === announcementIndex
-                            ? 'bg-blue-600 w-8'
-                            : 'bg-gray-300 hover:bg-gray-400 w-2'
-                        }`}
-                        aria-label={`Go to announcement ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
           ) : (
             <div className="text-center text-gray-600 py-12 bg-gray-50 rounded-xl border border-gray-200">
@@ -263,3 +259,30 @@ export default function Home() {
     </Layout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<HomePageProps> = async () => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Supabase environment variables are missing.');
+    return { props: { announcements: [] } };
+  }
+
+  const supabaseServer = createClient(supabaseUrl, supabaseKey);
+  const { data, error } = await supabaseServer
+    .from('announcements')
+    .select('*')
+    .order('date', { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error('Supabase server error:', error.message);
+  }
+
+  return {
+    props: {
+      announcements: data || [],
+    },
+  };
+};

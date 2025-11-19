@@ -149,7 +149,7 @@ const ChatButton = () => {
                     className={`inline-block rounded-2xl p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] shadow-sm ${
                       message.isUser
                         ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md'
-                        : 'bg-white text-gray-800 border border-gray-100 rounded-bl-md'
+                        : 'bg-white text-gray-800 rounded-bl-md'
                     }`}
                   >
                     <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{message.text}</p>

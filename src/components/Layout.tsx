@@ -46,36 +46,20 @@ const Layout = ({ children }: LayoutProps) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div>
-                    <p className="text-gray-300 font-medium">Barangay 828, Zone 90</p>
+                    <p className="text-gray-300 font-medium">Barangay 828, Zone 89</p>
                     <p className="text-gray-300">District V, City of Manila</p>
                     <p className="text-gray-300">Philippines</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 flex-shrink-0 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <div>
-                    <p className="text-gray-300">(02) 8123-4567</p>
-                    <p className="text-gray-400 text-sm">Main Office</p>
-                  </div>
-                </div>
+               
+           
                 <div className="flex items-center space-x-3">
                   <svg className="w-5 h-5 flex-shrink-0 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <div>
-                    <p className="text-gray-300">contact@barangay828.gov.ph</p>
-                    <p className="text-gray-400 text-sm">General Inquiries</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 flex-shrink-0 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <div>
-                    <p className="text-gray-300">sk.barangay828@gmail.com</p>
-                    <p className="text-gray-400 text-sm">Sangguniang Kabataan</p>
+                    <p className="text-gray-300">skbarangay828@gmail.com</p>
+                    <p className="text-gray-400 text-sm">SKBarangay828</p>
                   </div>
                 </div>
               </div>
@@ -134,7 +118,7 @@ const Layout = ({ children }: LayoutProps) => {
               </h4>
               <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border-2 border-gray-600">
                 <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15444.60533089608!2d120.97142807353908!3d14.59062331560943!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397ca631ed72277%3A0x8b1b25aa06a24afd!2sManila%20City%20Hall!5e0!3m2!1sen!2sph!4v1668582736124!5m2!1sen!2sph" 
+                  src="https://www.google.com/maps?q=1310-C+Burgos+St.,+Paco,+Manila&output=embed" 
                   width="100%" 
                   height="200" 
                   style={{ border: 0 }} 

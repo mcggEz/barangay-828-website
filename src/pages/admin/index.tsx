@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { Announcement, GalleryItem } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 type GrievanceRecord = {
   id?: string;
@@ -39,19 +40,19 @@ function GrievanceTable() {
 
   return (
     <div className="overflow-x-auto rounded-xl shadow ring-1 ring-slate-200">
-      <table className="min-w-full table-fixed text-sm">
+    <table className="min-w-full table-fixed text-sm">
         <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white sticky top-0 z-10">
-          <tr>
-            <th className="px-4 py-3 text-left font-semibold">Subject</th>
-            <th className="px-4 py-3 text-left font-semibold">Category</th>
-            <th className="px-4 py-3 text-left font-semibold">Name</th>
-            <th className="px-4 py-3 text-left font-semibold">Contact</th>
-            <th className="px-4 py-3 text-left font-semibold">Preferred</th>
-            <th className="px-4 py-3 text-left font-semibold">Details</th>
-          </tr>
-        </thead>
+        <tr>
+          <th className="px-4 py-3 text-left font-semibold">Subject</th>
+          <th className="px-4 py-3 text-left font-semibold">Category</th>
+          <th className="px-4 py-3 text-left font-semibold">Name</th>
+          <th className="px-4 py-3 text-left font-semibold">Contact</th>
+          <th className="px-4 py-3 text-left font-semibold">Preferred</th>
+          <th className="px-4 py-3 text-left font-semibold">Details</th>
+        </tr>
+      </thead>
         <tbody className="divide-y divide-slate-200 bg-white">
-          {items.map((g, idx) => (
+        {items.map((g, idx) => (
             <tr key={(g.id ?? idx.toString()) + (g.submittedAt ?? '')} className="hover:bg-blue-50 transition-colors">
               <td className="px-4 py-3 align-top font-medium">{g.subject || '—'}</td>
               <td className="px-4 py-3 align-top">
@@ -59,19 +60,42 @@ function GrievanceTable() {
                   {g.category || '—'}
                 </span>
               </td>
-              <td className="px-4 py-3 align-top">{g.fullName || '—'}</td>
+            <td className="px-4 py-3 align-top">{g.fullName || '—'}</td>
               <td className="px-4 py-3 align-top text-sm">{[g.contact, g.email].filter(Boolean).join(' | ') || '—'}</td>
-              <td className="px-4 py-3 align-top">{g.preferredContact || '—'}</td>
-              <td className="px-4 py-3 align-top">
+            <td className="px-4 py-3 align-top">{g.preferredContact || '—'}</td>
+            <td className="px-4 py-3 align-top">
                 <div className="max-w-xs whitespace-pre-wrap break-words text-sm text-gray-700">{g.details || '—'}</div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
     </div>
   );
 }
+
+type BasicInfo = {
+  address: string;
+  email: string;
+  phone: string;
+  hotline: string;
+  facebook: string;
+  officeHours: string;
+  mapEmbed: string;
+};
+
+type ChatbotPrompt = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+type CouncilMember = {
+  id: string;
+  name: string;
+  position: string;
+  contact: string;
+};
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -93,6 +117,24 @@ export default function AdminDashboard() {
   const [editingGallery, setEditingGallery] = useState<GalleryItem | null>(null);
   const [newGalleryItem, setNewGalleryItem] = useState({ title: '', image: '', date: '', category: 'Events' });
   const [showGalleryForm, setShowGalleryForm] = useState(false);
+  const [galleryUploadFile, setGalleryUploadFile] = useState<File | null>(null);
+  const [editingGalleryFile, setEditingGalleryFile] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Basic info + chatbot state
+  const [basicInfo, setBasicInfo] = useState<BasicInfo>({
+    address: '1310-C Burgos St., Paco, Manila',
+    email: 'barangay828sk@gmail.com',
+    phone: '(02) 8523 1234',
+    hotline: '0917 000 8828',
+    facebook: 'https://facebook.com/Brgy828SK',
+    officeHours: 'Monday to Friday, 8:00 AM - 5:00 PM',
+    mapEmbed: 'https://www.google.com/maps?q=1310-C+Burgos+St.,+Paco,+Manila&output=embed',
+  });
+  const [chatbotPrompts, setChatbotPrompts] = useState<ChatbotPrompt[]>([]);
+  const [newPrompt, setNewPrompt] = useState({ question: '', answer: '' });
+  const [members, setMembers] = useState<CouncilMember[]>([]);
+  const [newMember, setNewMember] = useState({ name: '', position: '', contact: '' });
 
   useEffect(() => {
     const checkAuth = () => {
@@ -126,6 +168,111 @@ export default function AdminDashboard() {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const storedInfo = localStorage.getItem('brgy828_basicInfo');
+      if (storedInfo) {
+        setBasicInfo(JSON.parse(storedInfo) as BasicInfo);
+      }
+      const storedPrompts = localStorage.getItem('brgy828_chatbotPrompts');
+      if (storedPrompts) {
+        setChatbotPrompts(JSON.parse(storedPrompts) as ChatbotPrompt[]);
+      } else {
+        setChatbotPrompts([
+          {
+            id: 'default-1',
+            question: 'How can I contact the SK Council?',
+            answer: 'You can reach us via email at barangay828sk@gmail.com or call (02) 8523 1234.',
+          },
+          {
+            id: 'default-2',
+            question: 'Where is the Barangay Hall located?',
+            answer: 'We are located at 1310-C Burgos St., Paco, Manila. Office hours are Monday to Friday, 8 AM to 5 PM.',
+          },
+        ]);
+      }
+      const storedMembers = localStorage.getItem('brgy828_councilMembers');
+      if (storedMembers) {
+        setMembers(JSON.parse(storedMembers) as CouncilMember[]);
+      } else {
+        setMembers([
+          { id: 'member-1', name: 'Juan Dela Cruz', position: 'SK Chairman', contact: '(02) 8523 1234' },
+          { id: 'member-2', name: 'Maria Santos', position: 'SK Kagawad', contact: 'maria.santos@example.com' },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error loading admin utilities:', error);
+    }
+  }, []);
+
+  const handleSaveBasicInfo = () => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('brgy828_basicInfo', JSON.stringify(basicInfo));
+    alert('Basic information saved!');
+  };
+
+  const handleAddPrompt = () => {
+    if (!newPrompt.question.trim() || !newPrompt.answer.trim()) {
+      alert('Please provide both a question and an answer.');
+      return;
+    }
+
+    const updated = [
+      ...chatbotPrompts,
+      {
+        id: `prompt-${Date.now()}`,
+        question: newPrompt.question.trim(),
+        answer: newPrompt.answer.trim(),
+      },
+    ];
+
+    setChatbotPrompts(updated);
+    setNewPrompt({ question: '', answer: '' });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('brgy828_chatbotPrompts', JSON.stringify(updated));
+    }
+  };
+
+  const handleDeletePrompt = (id: string) => {
+    const updated = chatbotPrompts.filter((prompt) => prompt.id !== id);
+    setChatbotPrompts(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('brgy828_chatbotPrompts', JSON.stringify(updated));
+    }
+  };
+
+  const persistMembers = (data: CouncilMember[]) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('brgy828_councilMembers', JSON.stringify(data));
+    }
+  };
+
+  const handleAddMember = () => {
+    if (!newMember.name.trim() || !newMember.position.trim()) {
+      alert('Please provide a name and position.');
+      return;
+    }
+    const updated = [
+      ...members,
+      {
+        id: `member-${Date.now()}`,
+        name: newMember.name.trim(),
+        position: newMember.position.trim(),
+        contact: newMember.contact.trim(),
+      },
+    ];
+    setMembers(updated);
+    persistMembers(updated);
+    setNewMember({ name: '', position: '', contact: '' });
+  };
+
+  const handleDeleteMember = (id: string) => {
+    const updated = members.filter((member) => member.id !== id);
+    setMembers(updated);
+    persistMembers(updated);
   };
 
   // Fetch announcements
@@ -169,6 +316,35 @@ export default function AdminDashboard() {
       }
     }
   }, [isAuthenticated, activeTab]);
+
+  const uploadGalleryImage = async (file: File) => {
+    if (!supabase) {
+      throw new Error('Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    }
+
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+      const filePath = `gallery/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('gallery-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from('gallery-images').getPublicUrl(filePath);
+      return data.publicUrl;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleLogout = () => {
     document.cookie = 'adminAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -248,20 +424,33 @@ export default function AdminDashboard() {
 
   // Gallery handlers
   const handleCreateGalleryItem = async () => {
-    if (!newGalleryItem.title || !newGalleryItem.image || !newGalleryItem.date) {
+    if (!newGalleryItem.title || !newGalleryItem.date) {
       alert('Please fill in all required fields');
       return;
     }
 
+    if (!galleryUploadFile) {
+      alert('Please upload an image for this gallery item.');
+      return;
+    }
+
+    if (!supabase) {
+      alert('Supabase is not configured. Please check your environment variables.');
+      return;
+    }
+
     try {
+      const imageUrl = await uploadGalleryImage(galleryUploadFile);
+
       const response = await fetch('/api/gallery/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newGalleryItem),
+        body: JSON.stringify({ ...newGalleryItem, image: imageUrl }),
       });
 
       if (response.ok) {
         setNewGalleryItem({ title: '', image: '', date: '', category: 'Events' });
+        setGalleryUploadFile(null);
         setShowGalleryForm(false);
         fetchGallery();
         alert('Gallery item created successfully!');
@@ -277,15 +466,27 @@ export default function AdminDashboard() {
   const handleUpdateGalleryItem = async () => {
     if (!editingGallery) return;
 
+    if (!supabase && editingGalleryFile) {
+      alert('Supabase is not configured. Please check your environment variables.');
+      return;
+    }
+
     try {
+      let imagePayload = editingGallery.image;
+
+      if (editingGalleryFile) {
+        imagePayload = await uploadGalleryImage(editingGalleryFile);
+      }
+
       const response = await fetch('/api/gallery/admin', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingGallery),
+        body: JSON.stringify({ ...editingGallery, image: imagePayload }),
       });
 
       if (response.ok) {
         setEditingGallery(null);
+        setEditingGalleryFile(null);
         fetchGallery();
         alert('Gallery item updated successfully!');
       } else {
@@ -371,11 +572,11 @@ export default function AdminDashboard() {
         }`}
       >
         <div className="flex items-center justify-center h-20 border-b border-blue-700 px-4">
-          <Image src="/sk-logo.png" alt="Barangay 828 Seal" width={40} height={40} className="rounded-full" />
-          <span className="ml-3 text-xl font-bold">Admin Panel</span>
-        </div>
+            <Image src="/sk-logo.png" alt="Barangay 828 Seal" width={40} height={40} className="rounded-full" />
+            <span className="ml-3 text-xl font-bold">Admin Panel</span>
+          </div>
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          <button
+            <button
             onClick={() => handleTabChange('announcements')}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${
               activeTab === 'announcements'
@@ -386,9 +587,9 @@ export default function AdminDashboard() {
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Announcements
-          </button>
-          <button
+              Announcements
+            </button>
+            <button
             onClick={() => handleTabChange('gallery')}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${
               activeTab === 'gallery'
@@ -399,9 +600,22 @@ export default function AdminDashboard() {
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Gallery
-          </button>
-          <button
+              Gallery
+            </button>
+            <button
+            onClick={() => handleTabChange('basicInfo')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'basicInfo'
+                ? 'bg-yellow-400 text-blue-900 font-semibold shadow-lg'
+                : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+            }`}
+          >
+            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+              Basic Info
+            </button>
+            <button
             onClick={() => handleTabChange('grievance')}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${
               activeTab === 'grievance'
@@ -412,32 +626,47 @@ export default function AdminDashboard() {
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Grievance
-          </button>
-        </nav>
+              Grievance
+            </button>
+            <button
+            onClick={() => handleTabChange('chatbot')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'chatbot'
+                ? 'bg-yellow-400 text-blue-900 font-semibold shadow-lg'
+                : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+            }`}
+          >
+            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-6 4h8m5 0a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v12z" />
+            </svg>
+              Chatbot
+            </button>
+          </nav>
         <div className="px-4 py-4 border-t border-blue-700">
-          <button
+            <button
             onClick={handleLogout}
             className="w-full flex items-center px-4 py-3 rounded-lg text-blue-100 hover:bg-red-600 hover:text-white transition-all"
           >
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            Logout
-          </button>
-        </div>
-      </aside>
+              Logout
+            </button>
+          </div>
+        </aside>
 
       {/* Main Area */}
       <div className="flex-1 flex flex-col overflow-hidden pt-0 lg:pt-0">
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 pt-0 px-0">
           <div className="w-full">
             {/* Announcements Tab */}
+
+            
             {activeTab === 'announcements' && (
-              <div className="bg-white rounded-none shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-none shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-8 py-6">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
+                  <div>
                       <h2 className="text-3xl font-bold text-white mb-2">Announcements Management</h2>
                       <p className="text-blue-100">Manage community announcements and updates</p>
                     </div>
@@ -462,6 +691,71 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="p-8 space-y-8">
+
+                {showAnnouncementForm && (
+                    <div className="bg-blue-50 rounded-none p-6 border border-blue-200">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-bold text-gray-900">Create New Announcement</h3>
+                        <button
+                          onClick={() => setShowAnnouncementForm(false)}
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Hide form
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
+                        <input
+                          type="text"
+                            value={newAnnouncement.title}
+                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter announcement title"
+                        />
+                      </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
+                          <select
+                            value={newAnnouncement.category}
+                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, category: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="Event">Event</option>
+                            <option value="Health">Health</option>
+                            <option value="Notice">Notice</option>
+                            <option value="General">General</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
+                        <input
+                          type="text"
+                            value={newAnnouncement.date}
+                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., March 15, 2024"
+                        />
+                      </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+                          <textarea
+                            value={newAnnouncement.description}
+                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, description: e.target.value })}
+                            rows={3}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter announcement description"
+                        />
+                    </div>
+                  </div>
+                      <button
+                        onClick={handleCreateAnnouncement}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
+                      >
+                        Create Announcement
+                      </button>
+                    </div>
+                  )}
                   {/* Announcements List */}
                   {announcementsLoading ? (
                     <div className="text-center py-12">
@@ -514,85 +808,22 @@ export default function AdminDashboard() {
                       {announcements.length === 0 && (
                         <div className="text-center py-12 text-gray-500">
                           No announcements found. Create your first announcement above.
-                        </div>
+                    </div>
                       )}
-                    </div>
-                  )}
+                  </div>
+                )}
 
-                  {showAnnouncementForm && (
-                    <div className="bg-blue-50 rounded-none p-6 border border-blue-200">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-bold text-gray-900">Create New Announcement</h3>
-                        <button
-                          onClick={() => setShowAnnouncementForm(false)}
-                          className="text-sm text-blue-600 hover:underline"
-                        >
-                          Hide form
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
-                          <input
-                            type="text"
-                            value={newAnnouncement.title}
-                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter announcement title"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
-                          <select
-                            value={newAnnouncement.category}
-                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, category: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="Event">Event</option>
-                            <option value="Health">Health</option>
-                            <option value="Notice">Notice</option>
-                            <option value="General">General</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
-                          <input
-                            type="text"
-                            value={newAnnouncement.date}
-                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="e.g., March 15, 2024"
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-                          <textarea
-                            value={newAnnouncement.description}
-                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, description: e.target.value })}
-                            rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter announcement description"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleCreateAnnouncement}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
-                      >
-                        Create Announcement
-                      </button>
+               
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
+                  </div>
+                )}
 
             {/* Gallery Tab */}
             {activeTab === 'gallery' && (
-              <div className="bg-white rounded-none shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-none shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-8 py-6">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
+                  <div>
                       <h2 className="text-3xl font-bold text-white mb-2">Gallery Management</h2>
                       <p className="text-blue-100">Manage community gallery images and events</p>
                     </div>
@@ -665,22 +896,23 @@ export default function AdminDashboard() {
                             placeholder="e.g., January 2024"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL *</label>
-                          <input
-                            type="text"
-                            value={newGalleryItem.image}
-                            onChange={(e) => setNewGalleryItem({ ...newGalleryItem, image: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="/sk-logo.png or full URL"
+                  <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Image</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setGalleryUploadFile(e.target.files?.[0] || null)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700"
                           />
+                        <p className="text-xs text-gray-500 mt-1">Upload the photo you want to feature.</p>
                         </div>
                       </div>
                       <button
                         onClick={handleCreateGalleryItem}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors disabled:opacity-60"
+                      disabled={uploadingImage}
                       >
-                        Add Gallery Item
+                      {uploadingImage ? 'Uploading...' : 'Add Gallery Item'}
                       </button>
                     </div>
                   )}
@@ -714,8 +946,14 @@ export default function AdminDashboard() {
                               </td>
                               <td className="px-4 py-3.align-top text-gray-600">{item.date}</td>
                               <td className="px-4 py-3 align-top">
-                                <div className="w-16 h-16.relative rounded overflow-hidden">
-                                  <Image src={item.image} alt={item.title} fill className="object-cover" />
+                                <div className="w-16 h-16 rounded overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+                                  <Image
+                                    src={item.image}
+                                    alt={item.title}
+                                    width={64}
+                                    height={64}
+                                    className="object-cover w-full h-full"
+                                />
                                 </div>
                               </td>
                               <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -745,13 +983,273 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   )}
+                    </div>
+                  </div>
+                )}
+
+            {/* Basic Info Tab */}
+            {activeTab === 'basicInfo' && (
+              <div className="bg-white rounded-none shadow-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-8 py-6">
+                  <div className="flex flex-col gap-2">
+                    <h2 className="text-3xl font-bold text-white">Basic Information</h2>
+                    <p className="text-blue-100">
+                      Update contact information, official address, and map embed used across the site.
+                    </p>
+                  </div>
+                </div>
+                <div className="p-8 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Official Address</label>
+                      <input
+                        type="text"
+                        value={basicInfo.address}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, address: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="1310-C Burgos St., Paco, Manila"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={basicInfo.email}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, email: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="barangay828sk@gmail.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                      <input
+                        type="text"
+                        value={basicInfo.phone}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, phone: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="(02) 8523 1234"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Hotline</label>
+                      <input
+                        type="text"
+                        value={basicInfo.hotline}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, hotline: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="0917 000 8828"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Facebook Page</label>
+                      <input
+                        type="text"
+                        value={basicInfo.facebook}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, facebook: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="https://facebook.com/Brgy828SK"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Office Hours</label>
+                      <input
+                        type="text"
+                        value={basicInfo.officeHours}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, officeHours: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Monday to Friday, 8 AM - 5 PM"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Google Maps Embed URL</label>
+                    <textarea
+                      value={basicInfo.mapEmbed}
+                      onChange={(e) => setBasicInfo({ ...basicInfo, mapEmbed: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      Paste the iframe URL used in the footer map.
+                    </p>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleSaveBasicInfo}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                      Save Basic Information
+                    </button>
+                  </div>
+                  <div className="border-t border-gray-200 pt-8 space-y-6">
+                    <div className="flex flex-col gap-2">
+                      <h3 className="text-2xl font-bold text-gray-900">SK Council Members</h3>
+                      <p className="text-gray-600">
+                        Manage the list of officials shown across the Transparency site.
+                      </p>
+                    </div>
+                    <div className="bg-blue-50 rounded-none p-6 border border-blue-200 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Name *</label>
+                          <input
+                            type="text"
+                            value={newMember.name}
+                            onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Full name"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Position *</label>
+                          <input
+                            type="text"
+                            value={newMember.position}
+                            onChange={(e) => setNewMember({ ...newMember, position: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., SK Kagawad"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Contact (optional)</label>
+                          <input
+                            type="text"
+                            value={newMember.contact}
+                            onChange={(e) => setNewMember({ ...newMember, contact: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Email or phone"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={handleAddMember}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        >
+                          Add Member
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {members.map((member) => (
+                        <div key={member.id} className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm flex flex-col gap-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs uppercase tracking-wide text-gray-500">Name</p>
+                              <h4 className="text-lg font-semibold text-gray-900">{member.name}</h4>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteMember(member.id)}
+                              className="text-red-500 hover:text-red-600 text-sm font-medium"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-gray-500">Position</p>
+                            <p className="text-gray-800 font-medium">{member.position}</p>
+                          </div>
+                          {member.contact && (
+                            <div>
+                              <p className="text-xs uppercase tracking-wide text-gray-500">Contact</p>
+                              <p className="text-gray-700">{member.contact}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {members.length === 0 && (
+                        <div className="text-center col-span-full text-gray-500 border border-dashed border-gray-300 rounded-xl p-8">
+                          No members listed yet. Add the SK officials above.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                    </div>
+                  </div>
+                )}
+
+            {/* Chatbot Tab */}
+                {activeTab === 'chatbot' && (
+              <div className="bg-white rounded-none shadow-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-8 py-6">
+                  <div className="flex flex-col gap-2">
+                    <h2 className="text-3xl font-bold text-white">Chatbot Responses</h2>
+                    <p className="text-blue-100">
+                      Configure the default Q&A pairs used by the chatbot widget on the site.
+                    </p>
+                  </div>
+                </div>
+                <div className="p-8 space-y-8">
+                  <div className="bg-blue-50 rounded-none p-6 border border-blue-200 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Question *</label>
+                        <input
+                          type="text"
+                          value={newPrompt.question}
+                          onChange={(e) => setNewPrompt({ ...newPrompt, question: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g., How do I request a barangay ID?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Answer *</label>
+                        <textarea
+                          value={newPrompt.answer}
+                          onChange={(e) => setNewPrompt({ ...newPrompt, answer: e.target.value })}
+                          rows={3}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Provide the steps or information the chatbot should respond with."
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleAddPrompt}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      >
+                        Add Response
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {chatbotPrompts.map((prompt) => (
+                      <div key={prompt.id} className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm space-y-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-gray-500">Question</p>
+                            <h4 className="font-semibold text-gray-900">{prompt.question}</h4>
+                          </div>
+                          <button
+                            onClick={() => handleDeletePrompt(prompt.id)}
+                            className="text-red-500 hover:text-red-600 text-sm font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Answer</p>
+                          <p className="text-gray-700 leading-relaxed">{prompt.answer}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {chatbotPrompts.length === 0 && (
+                      <div className="text-center col-span-full text-gray-500 border border-dashed border-gray-300 rounded-xl p-8">
+                        No responses yet. Add your first chatbot prompt above.
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-none p-4 text-sm text-blue-900">
+                    Responses are saved locally so you can refine them. Connect this module to Supabase to
+                    sync with the production chatbot when ready.
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Grievance Tab */}
             {activeTab === 'grievance' && (
-              <div className="bg-white rounded-none shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-none shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
                   <h2 className="text-3xl font-bold text-white mb-2">Grievance Submissions</h2>
                   <p className="text-blue-100">View and manage community grievance submissions</p>
@@ -783,8 +1281,8 @@ export default function AdminDashboard() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
-                <input
-                  type="text"
+                                <input
+                                  type="text"
                   value={editingAnnouncement.title}
                   onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -814,15 +1312,15 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-                <textarea
+                                <textarea
                   value={editingAnnouncement.description}
                   onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, description: e.target.value })}
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
+                    </div>
               <div className="flex justify-end gap-3 pt-4">
-                <button
+                      <button
                   onClick={() => setEditingAnnouncement(null)}
                   className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
                 >
@@ -833,12 +1331,12 @@ export default function AdminDashboard() {
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
                 >
                   Save Changes
-                </button>
+                      </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+                    </div>
+                  </div>
+                )}
 
       {/* Edit Gallery Modal */}
       {editingGallery && (
@@ -854,7 +1352,7 @@ export default function AdminDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-            </div>
+              </div>
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Title *</label>
@@ -864,7 +1362,7 @@ export default function AdminDashboard() {
                   onChange={(e) => setEditingGallery({ ...editingGallery, title: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
+            </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
                 <select
@@ -880,7 +1378,7 @@ export default function AdminDashboard() {
                   <option value="Culture">Culture</option>
                   <option value="Community">Community</option>
                 </select>
-              </div>
+        </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
                 <input
@@ -891,19 +1389,20 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Upload New Image</label>
                 <input
-                  type="text"
-                  value={editingGallery.image}
-                  onChange={(e) => setEditingGallery({ ...editingGallery, image: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditingGalleryFile(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700"
                 />
-                {editingGallery.image && (
-                  <div className="mt-2 w-32 h-32 relative rounded overflow-hidden border">
-                    <Image src={editingGallery.image} alt="Preview" fill className="object-cover" />
-                  </div>
-                )}
+                <p className="text-xs text-gray-500 mt-1">Leave empty to keep the current image.</p>
               </div>
+              {editingGallery.image && (
+                <div className="mt-2 w-32 h-32 relative rounded overflow-hidden border">
+                  <Image src={editingGallery.image} alt="Preview" fill className="object-cover" />
+                </div>
+              )}
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   onClick={() => setEditingGallery(null)}
@@ -922,6 +1421,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-    </div>
+      </div>
   );
 }
