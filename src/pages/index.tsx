@@ -1,18 +1,33 @@
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { getContent, ContentData } from '../utils/content';
+import { Announcement } from '../lib/supabase';
 
 export default function Home() {
-  const [content, setContent] = useState<ContentData | null>(null);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
   const [announcementIndex, setAnnouncementIndex] = useState(0);
 
   useEffect(() => {
-    setContent(getContent());
-  }, []);
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('/api/announcements');
+        if (response.ok) {
+          const data = await response.json();
+          // Get the latest 3 announcements for the carousel
+          setAnnouncements(data.slice(0, 3));
+        } else {
+          console.error('Failed to fetch announcements');
+        }
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const allAnnouncements = content?.announcements || [];
-  const announcements = allAnnouncements.slice(0, 3); // Show first 3 in carousel
+    fetchAnnouncements();
+  }, []);
 
   const nextAnnouncement = () => {
     if (announcements.length > 0) {
@@ -96,17 +111,22 @@ export default function Home() {
             </Link>
           </div>
 
-          {announcements.length > 0 ? (
+          {loading ? (
+            <div className="text-center text-gray-600 py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p className="mt-4">Loading announcements...</p>
+            </div>
+          ) : announcements.length > 0 ? (
             <div className="relative">
               {/* Carousel Container */}
-              <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-white border border-gray-200 shadow-lg">
+              <div className="relative overflow-hidden rounded-xl bg-white border border-gray-200 shadow-lg">
                 <div
                   className="flex transition-transform duration-500 ease-in-out"
                   style={{ transform: `translateX(-${announcementIndex * 100}%)` }}
                 >
-                  {announcements.map((announcement, index) => (
+                  {announcements.map((announcement) => (
                     <div
-                      key={index}
+                      key={announcement.id}
                       className="min-w-full px-8 py-12 md:px-12 md:py-16"
                     >
                       <div className="max-w-4xl mx-auto">
@@ -133,7 +153,7 @@ export default function Home() {
                 <>
                   <button
                     onClick={prevAnnouncement}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-colors z-10"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-colors z-10 border border-gray-200"
                     aria-label="Previous announcement"
                   >
                     <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +162,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={nextAnnouncement}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-colors z-10"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-3 shadow-lg hover:bg-gray-50 transition-colors z-10 border border-gray-200"
                     aria-label="Next announcement"
                   >
                     <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,14 +172,14 @@ export default function Home() {
 
                   {/* Dots Indicator */}
                   <div className="flex justify-center items-center gap-2 mt-6">
-                    {announcements.map((_, index) => (
+                    {announcements.map((announcement, index) => (
                       <button
-                        key={index}
+                        key={announcement.id}
                         onClick={() => setAnnouncementIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-all ${
+                        className={`h-2 rounded-full transition-all ${
                           index === announcementIndex
                             ? 'bg-blue-600 w-8'
-                            : 'bg-gray-300 hover:bg-gray-400'
+                            : 'bg-gray-300 hover:bg-gray-400 w-2'
                         }`}
                         aria-label={`Go to announcement ${index + 1}`}
                       />
@@ -169,8 +189,12 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <div className="text-center text-gray-600 py-12">
-              No announcements available at the moment.
+            <div className="text-center text-gray-600 py-12 bg-gray-50 rounded-xl border border-gray-200">
+              <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-lg">No announcements available at the moment.</p>
+              <p className="text-sm text-gray-500 mt-2">Check back later for updates!</p>
             </div>
           )}
 

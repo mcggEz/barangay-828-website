@@ -7,6 +7,12 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     try {
+      if (!supabase) {
+        return res.status(500).json({ 
+          error: 'Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file' 
+        });
+      }
+
       const { data, error } = await supabase
         .from('gallery')
         .select('*')

@@ -139,11 +139,6 @@ export default function AdminLogin() {
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-md text-blue-900"
               style={{ backgroundColor: '#FFC107' }}
             >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                <svg className="h-5 w-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
