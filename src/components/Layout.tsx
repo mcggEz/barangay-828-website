@@ -1,6 +1,7 @@
 import Navbar from './Navbar';
 import ChatButton from './ChatButton';
 import { ReactNode, useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface LayoutProps {
   children: ReactNode;
@@ -92,19 +93,19 @@ const Layout = ({ children }: LayoutProps) => {
                   <h5 className="text-md font-semibold mb-3 text-gray-200">Quick Links</h5>
                   <ul className="space-y-2">
                     <li>
-                      <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors">Home</a>
+                      <Link href="/" className="text-gray-300 hover:text-yellow-400 transition-colors">Home</Link>
                     </li>
                     <li>
-                      <a href="/announcements" className="text-gray-300 hover:text-yellow-400 transition-colors">Announcements</a>
+                      <Link href="/announcements" className="text-gray-300 hover:text-yellow-400 transition-colors">Announcements</Link>
                     </li>
                     <li>
-                      <a href="/gallery" className="text-gray-300 hover:text-yellow-400 transition-colors">Gallery</a>
+                      <Link href="/gallery" className="text-gray-300 hover:text-yellow-400 transition-colors">Gallery</Link>
                     </li>
                     <li>
-                      <a href="/projects" className="text-gray-300 hover:text-yellow-400 transition-colors">Projects</a>
+                      <Link href="/projects" className="text-gray-300 hover:text-yellow-400 transition-colors">Projects</Link>
                     </li>
                     <li>
-                      <a href="/grievance" className="text-gray-300 hover:text-yellow-400 transition-colors">Grievance</a>
+                      <Link href="/grievance" className="text-gray-300 hover:text-yellow-400 transition-colors">Grievance</Link>
                     </li>
                   </ul>
                 </div>

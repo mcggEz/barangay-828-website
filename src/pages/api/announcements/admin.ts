@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '../../../lib/supabase';
-import { Announcement } from '../../../lib/supabase';
 
 export default async function handler(
   req: NextApiRequest,

@@ -29,15 +29,7 @@ export default function Announcements({ announcements }: AnnouncementsPageProps)
     );
   }
 
-  const totalAnnouncements = announcements.length;
   const latestAnnouncement = announcements[0];
-  const categoryCounts = announcements.reduce<Record<string, number>>((acc, curr) => {
-    acc[curr.category] = (acc[curr.category] || 0) + 1;
-    return acc;
-  }, {});
-  const topCategory = Object.keys(categoryCounts).length
-    ? Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0][0]
-    : 'General';
 
   return (
     <Layout>
