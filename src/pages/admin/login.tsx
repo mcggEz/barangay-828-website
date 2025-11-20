@@ -18,16 +18,34 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    // Simple authentication - in production, use proper authentication
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      // Store authentication state in cookie
-      document.cookie = 'adminAuth=true; path=/; max-age=86400'; // 24 hours
-      router.push('/admin');
-    } else {
-      setError('Invalid username or password');
+    try {
+      console.log('Submitting login request for user:', credentials.username);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Login response status:', response.status, 'body:', data);
+
+      if (response.ok && data.success) {
+        // Cookie is set by the server, just redirect
+        router.push('/admin');
+      } else {
+        setError(data.error || 'Invalid username or password');
+      }
+    } catch (err) {
+      console.error('Login error (frontend catch):', err);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +125,7 @@ export default function AdminLogin() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer z-10"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (

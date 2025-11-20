@@ -5,16 +5,34 @@ import { GetServerSideProps } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
 interface GalleryPageProps {
-  galleryItems: GalleryItem[];
+  galleryItems?: GalleryItem[];
 }
 
-export default function Gallery({ galleryItems }: GalleryPageProps) {
+export default function Gallery({ galleryItems = [] }: GalleryPageProps) {
   return (
     <Layout>
       <div className="bg-gray-50 min-h-screen">
+        {/* Hero - match announcements page style */}
+        <section className="bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-700 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-6 max-w-4xl">
+              <p className="text-blue-200 uppercase tracking-[0.3em] text-sm font-semibold">
+                Community Moments
+              </p>
+              <h1 className="text-4xl lg:text-5xl font-black leading-tight">
+                Gallery of Events &amp; Activities
+              </h1>
+              <p className="text-blue-100 text-lg max-w-3xl">
+                Look back at the programs, projects, and activities of Barangay 828.
+                This gallery showcases our community&apos;s milestones and memories.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Content */}
         <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-16">
-          <h1 className="text-4xl font-bold text-center mb-4 text-gray-900">Gallery</h1>
-          <p className="text-center text-gray-600 mb-12">Explore our community events and activities</p>
+          <h2 className="sr-only">Gallery items</h2>
 
           {galleryItems.length === 0 ? (
             <div className="text-center text-gray-600 py-12">No gallery items available at the moment.</div>

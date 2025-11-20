@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
-import { Announcement, GalleryItem } from '../../lib/supabase';
-import { supabase } from '../../lib/supabase';
+import type { Announcement, GalleryItem } from '../../lib/supabase';
 
 type GrievanceRecord = {
   id?: string;
@@ -98,8 +98,6 @@ type CouncilMember = {
 };
 
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('announcements');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
@@ -108,8 +106,18 @@ export default function AdminDashboard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [announcementsLoading, setAnnouncementsLoading] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
-  const [newAnnouncement, setNewAnnouncement] = useState({ title: '', description: '', category: 'Event', date: '' });
+  const [newAnnouncement, setNewAnnouncement] = useState<{ title: string; description: string; category: string; date: string; images: string[] }>({
+    title: '',
+    description: '',
+    category: 'Event',
+    date: '',
+    images: [],
+  });
   const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+  const [announcementUploadFiles, setAnnouncementUploadFiles] = useState<File[]>([]);
+  const [announcementFileInputKey, setAnnouncementFileInputKey] = useState(0);
+  const [editingAnnouncementFiles, setEditingAnnouncementFiles] = useState<File[]>([]);
+  const [editingAnnouncementFileInputKey, setEditingAnnouncementFileInputKey] = useState(0);
 
   // Gallery state
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -136,21 +144,8 @@ export default function AdminDashboard() {
   const [members, setMembers] = useState<CouncilMember[]>([]);
   const [newMember, setNewMember] = useState({ name: '', position: '', contact: '' });
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const cookies = document.cookie.split(';');
-      const adminAuth = cookies.find(cookie => cookie.trim().startsWith('adminAuth='));
-      
-      if (adminAuth && adminAuth.split('=')[1] === 'true') {
-        setIsAuthenticated(true);
-      } else {
-        router.push('/admin/login');
-      }
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, [router]);
+  // Auth is enforced by Next.js middleware using an HttpOnly cookie.
+  // If the user is not authenticated they will be redirected before this page renders.
 
   useEffect(() => {
     const handleResize = () => {
@@ -308,47 +303,74 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      if (activeTab === 'announcements') {
-        fetchAnnouncements();
-      } else if (activeTab === 'gallery') {
-        fetchGallery();
-      }
+    if (activeTab === 'announcements') {
+      fetchAnnouncements();
+    } else if (activeTab === 'gallery') {
+      fetchGallery();
     }
-  }, [isAuthenticated, activeTab]);
+  }, [activeTab]);
+
+  const fileToDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const uploadFileViaServer = async (file: File, bucket: string, folder: string) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+    const fileData = await fileToDataUrl(file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bucket,
+        path: fileName,
+        fileData,
+        contentType: file.type || 'application/octet-stream',
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'File upload failed');
+    }
+
+    return data.publicUrl as string;
+  };
 
   const uploadGalleryImage = async (file: File) => {
-    if (!supabase) {
-      throw new Error('Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
-    }
-
     setUploadingImage(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-      const filePath = `gallery/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('gallery-images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data } = supabase.storage.from('gallery-images').getPublicUrl(filePath);
-      return data.publicUrl;
+      return await uploadFileViaServer(file, 'gallery-images', 'gallery');
     } finally {
       setUploadingImage(false);
     }
   };
 
-  const handleLogout = () => {
-    document.cookie = 'adminAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/admin/login');
+  const uploadAnnouncementImages = async (files: File[]) => {
+    if (files.length === 0) return [];
+    setUploadingImage(true);
+    try {
+      const uploads = files.map((file) => uploadFileViaServer(file, 'announcement-images', 'announcements'));
+      return await Promise.all(uploads);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      router.push('/admin/login');
+    }
   };
 
   // Announcement handlers
@@ -359,14 +381,22 @@ export default function AdminDashboard() {
     }
 
     try {
+      let imageUrls: string[] = [];
+
+      if (announcementUploadFiles.length > 0) {
+        imageUrls = await uploadAnnouncementImages(announcementUploadFiles);
+      }
+
       const response = await fetch('/api/announcements/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newAnnouncement),
+        body: JSON.stringify({ ...newAnnouncement, images: imageUrls }),
       });
 
       if (response.ok) {
-        setNewAnnouncement({ title: '', description: '', category: 'Event', date: '' });
+        setNewAnnouncement({ title: '', description: '', category: 'Event', date: '', images: [] });
+        setAnnouncementUploadFiles([]);
+        setAnnouncementFileInputKey((prev) => prev + 1);
         setShowAnnouncementForm(false);
         fetchAnnouncements();
         alert('Announcement created successfully!');
@@ -383,14 +413,23 @@ export default function AdminDashboard() {
     if (!editingAnnouncement) return;
 
     try {
+      let imageUrls = editingAnnouncement.images ?? [];
+
+      if (editingAnnouncementFiles.length > 0) {
+        const uploaded = await uploadAnnouncementImages(editingAnnouncementFiles);
+        imageUrls = [...imageUrls, ...uploaded];
+      }
+
       const response = await fetch('/api/announcements/admin', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingAnnouncement),
+        body: JSON.stringify({ ...editingAnnouncement, images: imageUrls }),
       });
 
       if (response.ok) {
         setEditingAnnouncement(null);
+        setEditingAnnouncementFiles([]);
+        setEditingAnnouncementFileInputKey((prev) => prev + 1);
         fetchAnnouncements();
         alert('Announcement updated successfully!');
       } else {
@@ -400,6 +439,38 @@ export default function AdminDashboard() {
       console.error('Error updating announcement:', error);
       alert('Error updating announcement');
     }
+  };
+
+  const handleAnnouncementFilesChange = (files: FileList | null) => {
+    if (!files) {
+      setAnnouncementUploadFiles([]);
+      return;
+    }
+    setAnnouncementUploadFiles(Array.from(files));
+  };
+
+  const removeAnnouncementFile = (index: number) => {
+    setAnnouncementUploadFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditingAnnouncementFilesChange = (files: FileList | null) => {
+    if (!files) {
+      setEditingAnnouncementFiles([]);
+      return;
+    }
+    setEditingAnnouncementFiles(Array.from(files));
+  };
+
+  const removeEditingAnnouncementFile = (index: number) => {
+    setEditingAnnouncementFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingAnnouncementImage = (imageUrl: string) => {
+    if (!editingAnnouncement) return;
+    setEditingAnnouncement({
+      ...editingAnnouncement,
+      images: (editingAnnouncement.images || []).filter((image) => image !== imageUrl),
+    });
   };
 
   const handleDeleteAnnouncement = async (id: string) => {
@@ -434,11 +505,6 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (!supabase) {
-      alert('Supabase is not configured. Please check your environment variables.');
-      return;
-    }
-
     try {
       const imageUrl = await uploadGalleryImage(galleryUploadFile);
 
@@ -465,11 +531,6 @@ export default function AdminDashboard() {
 
   const handleUpdateGalleryItem = async () => {
     if (!editingGallery) return;
-
-    if (!supabase && editingGalleryFile) {
-      alert('Supabase is not configured. Please check your environment variables.');
-      return;
-    }
 
     try {
       let imagePayload = editingGallery.image;
@@ -517,21 +578,6 @@ export default function AdminDashboard() {
       alert('Error deleting gallery item');
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <div className="text-lg font-semibold text-gray-700">Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="h-screen flex bg-gray-50 relative">
@@ -747,6 +793,40 @@ export default function AdminDashboard() {
                             placeholder="Enter announcement description"
                         />
                     </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Images (optional)</label>
+                          <input
+                            key={announcementFileInputKey}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => handleAnnouncementFilesChange(e.target.files)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Select one or more photos. All selected files will be uploaded for this announcement.
+                          </p>
+                          {announcementUploadFiles.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              {announcementUploadFiles.map((file, index) => (
+                                <div
+                                  key={`${file.name}-${index}`}
+                                  className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3 py-1 text-sm shadow-sm"
+                                >
+                                  <span className="text-gray-700">{file.name}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeAnnouncementFile(index)}
+                                    className="text-red-500 hover:text-red-600"
+                                    aria-label="Remove file"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                   </div>
                       <button
                         onClick={handleCreateAnnouncement}
@@ -1312,13 +1392,67 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-                                <textarea
+                <textarea
                   value={editingAnnouncement.description}
                   onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, description: e.target.value })}
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                    </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Add More Images (optional)</label>
+                <input
+                  key={editingAnnouncementFileInputKey}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleEditingAnnouncementFilesChange(e.target.files)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  New files will be uploaded and appended to the existing gallery for this announcement.
+                </p>
+                {editingAnnouncementFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {editingAnnouncementFiles.map((file, index) => (
+                      <div
+                        key={`${file.name}-${index}`}
+                        className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3 py-1 text-sm shadow-sm"
+                      >
+                        <span className="text-gray-700">{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeEditingAnnouncementFile(index)}
+                          className="text-red-500 hover:text-red-600"
+                          aria-label="Remove file"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {editingAnnouncement.images && editingAnnouncement.images.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Current Images</p>
+                  <div className="flex flex-wrap gap-3">
+                    {editingAnnouncement.images.map((url, idx) => (
+                      <div key={idx} className="w-24 h-24 relative rounded overflow-hidden border shadow-sm group">
+                        <Image src={url} alt={`Announcement image ${idx + 1}`} fill className="object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeExistingAnnouncementImage(url)}
+                          className="absolute top-1 right-1 bg-white/80 text-xs text-red-600 rounded-full px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label="Remove image"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end gap-3 pt-4">
                       <button
                   onClick={() => setEditingAnnouncement(null)}
@@ -1424,3 +1558,18 @@ export default function AdminDashboard() {
       </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const adminAuth = req.cookies?.adminAuth;
+
+  if (adminAuth !== 'true') {
+    return {
+      redirect: {
+        destination: '/admin/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
+};

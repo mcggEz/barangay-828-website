@@ -1,4 +1,5 @@
 import Layout from '../components/Layout';
+import Image from 'next/image';
 import { Announcement } from '../lib/supabase';
 import { GetServerSideProps } from 'next';
 import { createClient } from '@supabase/supabase-js';
@@ -60,12 +61,49 @@ export default function Announcements({ announcements }: AnnouncementsPageProps)
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="space-y-12">
             {announcements.map((announcement) => (
-              <div key={announcement.id} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-10 hover:shadow-xl transition-shadow">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+              <div
+                key={announcement.id}
+                className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-10 hover:shadow-xl transition-shadow"
+              >
+                {announcement.images && announcement.images.length > 0 && (
+                  <div className="mb-6">
+                    <div className="relative w-full h-56 md:h-72 rounded-2xl overflow-hidden bg-gray-100">
+                      <Image
+                        src={announcement.images[0]}
+                        alt={announcement.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {announcement.images.length > 1 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {announcement.images.slice(1, 4).map((url, idx) => (
+                          <div
+                            key={idx}
+                            className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-100"
+                          >
+                            <Image src={url} alt={`${announcement.title} image ${idx + 2}`} fill className="object-cover" />
+                          </div>
+                        ))}
+                        {announcement.images.length > 4 && (
+                          <span className="text-xs text-gray-500 self-center">
+                            +{announcement.images.length - 4} more photos
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
                   <div className="flex items-center flex-wrap gap-4">
-                    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${categoryStyles[announcement.category] || 'bg-blue-50 text-blue-700 border border-blue-200'}`}>
-                        {announcement.category}
-                      </span>
+                    <span
+                      className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                        categoryStyles[announcement.category] ||
+                        'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}
+                    >
+                      {announcement.category}
+                    </span>
                     <span className="text-gray-500 flex items-center gap-2">
                       <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -74,10 +112,8 @@ export default function Announcements({ announcements }: AnnouncementsPageProps)
                     </span>
                   </div>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900.mb-4">{announcement.title}</h2>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  {announcement.description}
-                </p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">{announcement.title}</h2>
+                <p className="text-lg text-gray-600 leading-relaxed">{announcement.description}</p>
               </div>
             ))}
           </div>

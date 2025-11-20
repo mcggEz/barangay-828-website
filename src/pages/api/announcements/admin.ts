@@ -32,7 +32,7 @@ export default async function handler(
 
   if (req.method === 'POST') {
     try {
-      const { title, description, category, date } = req.body;
+      const { title, description, category, date, images } = req.body;
 
       if (!title || !description || !category || !date) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -40,7 +40,7 @@ export default async function handler(
 
       const { data, error } = await supabase
         .from('announcements')
-        .insert([{ title, description, category, date }])
+        .insert([{ title, description, category, date, images: images ?? [] }])
         .select()
         .single();
 
@@ -58,7 +58,7 @@ export default async function handler(
 
   if (req.method === 'PUT') {
     try {
-      const { id, title, description, category, date } = req.body;
+      const { id, title, description, category, date, images } = req.body;
 
       if (!id || !title || !description || !category || !date) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -66,7 +66,7 @@ export default async function handler(
 
       const { data, error } = await supabase
         .from('announcements')
-        .update({ title, description, category, date })
+        .update({ title, description, category, date, images: images ?? [] })
         .eq('id', id)
         .select()
         .single();
