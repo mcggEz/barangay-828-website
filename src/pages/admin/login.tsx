@@ -36,15 +36,15 @@ export default function AdminLogin() {
 
       if (response.ok && data.success) {
         // Cookie is set by the server, just redirect
-        router.push('/admin');
-      } else {
+      router.push('/admin');
+    } else {
         setError(data.error || 'Invalid username or password');
-      }
+    }
     } catch (err) {
       console.error('Login error (frontend catch):', err);
       setError('An error occurred. Please try again.');
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
   };
 

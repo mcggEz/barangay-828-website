@@ -1,9 +1,11 @@
-import Layout from '../components/Layout';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Layout from '../components/Layout';
 import { Announcement } from '../lib/supabase';
 import { GetServerSideProps } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { ArrowRight, Users, Info, Calendar, MessageSquare } from 'lucide-react';
 
 const categoryStyles: Record<string, string> = {
   Health: 'bg-green-100 text-green-800 border border-green-200',
@@ -16,246 +18,275 @@ interface HomePageProps {
   announcements: Announcement[];
 }
 
-export default function Home({ announcements }: HomePageProps) {
-  const [announcementIndex, setAnnouncementIndex] = useState(0);
-
-  const nextAnnouncement = () => {
-    if (announcements.length > 0) {
-      setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
-    }
-  };
-
-  const prevAnnouncement = () => {
-    if (announcements.length > 0) {
-      setAnnouncementIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
-    }
-  };
+// Smooth Reveal Animation Component
+const Reveal = ({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (announcements.length > 0) {
-      const interval = setInterval(() => {
-        setAnnouncementIndex((prev) => (prev + 1) % announcements.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [announcements.length]);
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => setIsVisible(entry.isIntersecting));
+    }, { threshold: 0.1 });
+
+    const currentRef = domRef.current;
+    if (currentRef) observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, []);
 
   return (
+    <div
+      ref={domRef}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`transition-all duration-1000 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 blur-sm'
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
+
+export default function Home({ announcements }: HomePageProps) {
+  return (
     <Layout>
-      {/* Hero Section - Blue Background */}
-      <section 
-        className="relative text-white overflow-hidden min-h-[calc(100vh-4rem)] flex items-center"
-        style={{
-          backgroundColor: '#0D47A1',
-          backgroundImage: 'linear-gradient(to bottom right, rgba(13, 71, 161, 0.95), rgba(5, 43, 102, 1))',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full">
-          <div className="relative z-10 max-w-4xl">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight mb-6">
-              Welcome to Barangay 828 SK Council Official Website
-            </h1>
-            <p className="text-lg md:text-xl text-blue-100 leading-relaxed">
-              Your trusted source for SK updates, youth empowerment, and transparency for a better, brighter Barangay 828.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Transparency Section */}
-      <section className="bg-gray-50 py-16 lg:py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-xl p-8 lg:p-12 border border-gray-200 shadow-sm">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-              Welcome to the Transparency Website of the SK of Barangay 828!
-            </h2>
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              This website is our public window into the work of the Sangguniang Kabataan. Here you can easily view plans, programs, and activities; track updates and reports; and understand how public resources are used to serve our barangay. Our goal is to strengthen trust through openness, involve more young people in local governance, and make information simple, accurate, and accessible to everyone.
-            </p>
-            <p className="text-gray-600 italic leading-relaxed">
-              In line with the SK Reform Act (Republic Act No. 10742) and the Local Government Code of 1991, this site supports transparency, youth participation, and public access to information.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Latest Announcements Carousel */}
-      <section className="bg-white py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Latest Announcements</h2>
-              <p className="text-gray-600">Stay updated on news and upcoming events in our barangay</p>
-            </div>
-            <Link 
-              href="/announcements" 
-              className="hidden md:flex items-center text-blue-600 font-semibold hover:text-blue-700"
-            >
-              View all
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+      <div className="antialiased selection:bg-[#FFC107] selection:text-[#053F85] min-h-screen bg-[#053F85] flex flex-col">
+        <main className="flex-1 flex flex-col">
+        {/* Hero Section */}
+        <section className="relative flex-1 flex items-center justify-center overflow-hidden bg-[#053F85] min-h-screen">
+          {/* Dynamic Background */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute top-[-20%] right-[-10%] w-[80vw] h-[80vw] bg-[#022c5e] rounded-full blur-[120px] animate-float opacity-60"></div>
+            <div className="absolute top-[20%] left-[-10%] w-[60vw] h-[60vw] bg-[#FFC107]/10 rounded-full blur-[100px] animate-float" style={{ animationDelay: '2s' }}></div>
           </div>
 
-          {announcements.length > 0 ? (
-            <div className="relative">
-              <div className="mb-6 flex flex-wrap gap-4 text-sm text-gray-600">
+          <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col items-center lg:items-start justify-center gap-8" style={{ marginTop: '4rem', paddingTop: '2rem', paddingBottom: '2rem' }}>
+            <div className="flex flex-col space-y-8 w-full lg:max-w-3xl">
+              <Reveal>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.02] tracking-tight text-balance mb-4">
+                  Barangay 828 <br />
+                  <span className="text-[#FFC107]">SK Council</span> <br />
+                  Official Website
+                </h1>
+              </Reveal>
+
+              <Reveal delay={200}>
+                <p className="text-lg md:text-xl text-blue-100/80 max-w-2xl leading-relaxed font-light text-balance">
+                  Your trusted source for SK updates, youth empowerment, and transparency for a better Barangay 828.
+                </p>
+              </Reveal>
+
+              <Reveal delay={300}>
+                <div className="flex flex-wrap gap-4 items-center">
+                  <Link
+                    href="/announcements"
+                    className="h-14 px-8 bg-white text-[#053F85] font-medium rounded-full hover:bg-gray-100 transition-all duration-300 flex items-center gap-3 hover:gap-4 shadow-xl shadow-black/10 group"
+                  >
+                    Latest Announcements
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 
-             
-              </div>
-              <div className="relative rounded-3xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 p-8 md:p-12 text-white shadow-2xl overflow-hidden">
-                <div className="absolute -top-16 -right-10 w-56 h-56 bg-white/20 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
-                <div className="absolute -bottom-20 -left-12 w-48 h-48 bg-indigo-400/30 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
-
-                <div
-                  className="relative flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${announcementIndex * 100}%)` }}
-                >
-                  {announcements.map((announcement) => (
-                    <div
-                      key={announcement.id}
-                      className="min-w-full px-4 md:px-8"
-                    >
-                      <div className="max-w-4xl mx-auto">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8 text-white/90">
-                          <div className="flex items-center gap-4 flex-wrap">
-                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${categoryStyles[announcement.category] || 'bg-white/10 text-white border border-white/20'}`}>
-                              {announcement.category}
-                            </span>
-                            <span className="text-sm flex items-center gap-2">
-                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              {announcement.date}
-                            </span>
-                          </div>
-                        </div>
-                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
-                          {announcement.title}
-                        </h3>
-                        <p className="text-lg md:text-xl text-white/80 leading-relaxed">
-                          {announcement.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
                 </div>
-
-                {announcements.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevAnnouncement}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur text-white rounded-full p-4 shadow-2xl hover:bg-white/30 transition-colors z-10 border border-white/30"
-                      aria-label="Previous announcement"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={nextAnnouncement}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur text-white rounded-full p-4 shadow-2xl hover:bg-white/30 transition-colors z-10 border border-white/30"
-                      aria-label="Next announcement"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                      {announcements.map((announcement, index) => (
-                        <button
-                          key={announcement.id}
-                          onClick={() => setAnnouncementIndex(index)}
-                          className={`h-2 rounded-full transition-all ${
-                            index === announcementIndex
-                              ? 'bg-white w-12'
-                              : 'bg-white/40 hover:bg-white/70 w-3'
-                          }`}
-                          aria-label={`Go to announcement ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              </Reveal>
             </div>
-          ) : (
-            <div className="text-center text-gray-600 py-12 bg-gray-50 rounded-xl border border-gray-200">
-              <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
-              <p className="text-lg">No announcements available at the moment.</p>
-              <p className="text-sm text-gray-500 mt-2">Check back later for updates!</p>
+          </div>
+
+          {/* Infinite Marquee */}
+          {announcements.length > 0 && (
+            <div className="absolute bottom-0 w-full bg-[#022c5e] border-t border-white/10 py-4 overflow-hidden flex items-center">
+              <div className="flex animate-marquee whitespace-nowrap gap-12 text-sm font-medium text-blue-200/60 uppercase tracking-widest">
+                {announcements.slice(0, 3).map((ann, idx) => (
+                  <React.Fragment key={ann.id}>
+                    <span>📢 {ann.title}</span>
+                    <span className="text-[#FFC107]">★</span>
+                  </React.Fragment>
+                ))}
+                {announcements.slice(0, 3).map((ann, idx) => (
+                  <React.Fragment key={`dup-${ann.id}`}>
+                    <span>📢 {ann.title}</span>
+                    <span className="text-[#FFC107]">★</span>
+                  </React.Fragment>
+                ))}
+              </div>
             </div>
           )}
+        </section>
 
-          <div className="text-center mt-8 md:hidden">
-            <Link 
-              href="/announcements" 
-              className="inline-flex items-center text-blue-600 font-semibold hover:text-blue-700"
-            >
-              View all announcements
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
+        {/* Transparency Section */}
+        <section id="transparency" className="pt-20 pb-24 md:pt-32 md:pb-32 bg-[#053F85] relative">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div className="mb-20 max-w-2xl">
+              <Reveal>
+                <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">
+                  Transparency
+                </h2>
+              </Reveal>
+            </div>
 
-      {/* Officials Section */}
-      <section className="bg-white py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Sangguniang Kabataan Officials</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Meet the dedicated youth leaders of our community</p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 lg:gap-8">
-            {[
-              { name: 'Juan Dela Cruz', position: 'SK Chairman', highlight: true },
-              { name: 'Maria Santos', position: 'SK Kagawad', highlight: false },
-              { name: 'Pedro Reyes', position: 'SK Kagawad', highlight: false },
-              { name: 'Ana Garcia', position: 'SK Kagawad', highlight: false },
-              { name: 'Jose Mari Lim', position: 'SK Secretary', highlight: false },
-            ].map((official, index) => (
-              <div 
-                key={index}
-                className={`group bg-white rounded-xl border-2 p-6 hover:shadow-xl transition-all duration-300 text-center ${
-                  official.highlight 
-                    ? 'border-yellow-400 shadow-lg bg-gradient-to-br from-blue-50 to-white' 
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-              >
-                <div className={`w-24 h-24 md:w-28 md:h-28 mx-auto mb-5 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${
-                  official.highlight 
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-700 border-4 border-yellow-400 shadow-lg' 
-                    : 'bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-gray-300'
-                }`}>
-                  <svg className={`w-12 h-12 md:w-14 md:h-14 ${official.highlight ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Main Large Card */}
+              <Reveal className="flex-1">
+                <div className="bento-card bg-white/5 rounded-[2.5rem] p-8 md:p-10 flex flex-col relative overflow-hidden group border border-white/10">
+                  <div className="relative z-10">
+                    <div className="text-lg text-blue-100/80 leading-relaxed space-y-5">
+                      <p>
+                        This website is our public window into the work of the Sangguniang Kabataan. Here you can easily view plans, programs, and activities; track updates and reports; and understand how public resources are used to serve our barangay. Our goal is to strengthen trust through openness, involve more young people in local governance, and make information simple, accurate, and accessible to everyone.
+                      </p>
+                      <p>
+                        In line with the SK Reform Act (Republic Act No. 10742) and the Local Government Code of 1991, this site supports transparency, youth participation, and public access to information.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="absolute right-[-50px] bottom-[-50px] w-80 h-80 bg-[#022c5e] rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700 blur-3xl"></div>
                 </div>
-                <h3 className={`font-bold mb-2 text-base md:text-lg ${
-                  official.highlight ? 'text-blue-900' : 'text-gray-900'
-                }`}>
-                  {official.name}
-                </h3>
-                <p className={`text-sm md:text-base font-medium ${
-                  official.highlight ? 'text-blue-700' : 'text-gray-600'
-                }`}>
-                  {official.position}
-                </p>
-              </div>
-            ))}
+              </Reveal>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Announcements Section */}
+        <section id="announcements" className="pt-20 pb-24 md:pt-32 md:pb-32 bg-[#053F85] border-y border-white/5">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+              <Reveal>
+                <h2 className="text-4xl font-bold text-white tracking-tight">Latest <br />Updates</h2>
+              </Reveal>
+              <Reveal delay={100}>
+                <Link
+                  href="/announcements"
+                  className="inline-flex items-center gap-2 font-semibold text-[#FFC107] hover:gap-4 transition-all"
+                >
+                  View Archive <ArrowRight size={18} />
+                </Link>
+              </Reveal>
+            </div>
+
+            {announcements.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {announcements.slice(0, 6).map((announcement, idx) => {
+                  const categoryClass =
+                    categoryStyles[announcement.category as keyof typeof categoryStyles] ||
+                    'bg-blue-100 text-blue-800 border border-blue-200';
+
+                  const formattedDate = new Date(announcement.date).toLocaleDateString('en-PH', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  });
+
+                  return (
+                    <Reveal key={announcement.id} delay={idx * 80}>
+                      <Link
+                        href="/announcements"
+                        className="group flex flex-col h-full p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 hover:border-[#FFC107]/60 transition-all cursor-pointer hover:shadow-xl hover:shadow-black/20 hover:-translate-y-1"
+                      >
+                        <div className="flex items-center justify-between gap-3 mb-4">
+                          <span className="inline-flex items-center gap-2 text-xs font-semibold text-blue-100/80">
+                            <Calendar size={14} className="text-[#FFC107]" />
+                            {formattedDate}
+                          </span>
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-opacity-90 ${categoryClass}`}
+                          >
+                            {announcement.category || 'General'}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-[#FFC107] transition-colors line-clamp-2">
+                          {announcement.title}
+                        </h3>
+
+                        <p className="mt-3 text-sm text-blue-100/80 line-clamp-3">
+                          {announcement.description || 'Click to read the full details of this announcement.'}
+                        </p>
+
+                        <div className="mt-5 flex items-center justify-between text-xs text-blue-200/70">
+                          <span className="inline-flex items-center gap-1">
+                            <Info size={14} className="text-blue-200/80" />
+                            Tap to view complete announcement
+                          </span>
+                          <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-[#FFC107] group-hover:text-[#053F85] transition-all">
+                            <ArrowRight size={16} />
+                          </div>
+                        </div>
+                      </Link>
+                    </Reveal>
+                  );
+                })}
+              </div>
+            ) : (
+              <Reveal delay={150}>
+                <div className="text-center text-blue-200/70 py-10 px-6 bg-[#022c5e]/60 border border-dashed border-blue-400/40 rounded-3xl max-w-2xl mx-auto">
+                 
+                  <h3 className="text-2xl font-semibold text-white mb-2">
+                    No announcements yet
+                  </h3>
+                  <p className="text-sm md:text-base text-blue-100/80 mb-4">
+                    We’re preparing updates for upcoming programs, activities, and important barangay reminders.
+                    Please check back soon or follow our Facebook page for real-time updates.
+                  </p>
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61553500932941"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-[#053F85] text-sm font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    Visit SK 828 on Facebook
+                    <ArrowRight size={16} />
+                  </a>
+                </div>
+              </Reveal>
+            )}
+          </div>
+        </section>
+
+        {/* Officials Section */}
+        <section id="officials" className="pt-20 pb-24 md:pt-32 md:pb-32 bg-[#053F85]">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+            <div className="mb-20">
+              <Reveal>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-[1px] w-12 bg-[#FFC107]"></div>
+                  <span className="text-[#FFC107] font-bold tracking-widest uppercase text-xs">Members</span>
+                </div>
+                <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">
+                  Meet the <br /> Council.
+                </h2>
+              </Reveal>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {[
+                { name: 'Juan Dela Cruz', role: 'Chairperson' },
+                { name: 'Maria Santos', role: 'Kagawad' },
+                { name: 'Pedro Reyes', role: 'Kagawad' },
+                { name: 'Ana Garcia', role: 'Kagawad' },
+                { name: 'Jose Mari Lim', role: 'Secretary' },
+              ].map((official, idx) => (
+                <Reveal key={idx} delay={idx * 100}>
+                  <div className="group flex flex-col items-start gap-4 p-4 hover:bg-white/5 hover:rounded-3xl transition-all duration-300 hover:shadow-xl hover:shadow-black/20 border border-transparent hover:border-white/5">
+                    <div className="w-full aspect-[4/5] bg-[#022c5e] rounded-2xl overflow-hidden relative border border-white/5">
+                      <div className="absolute inset-0 bg-[#053F85]/20 group-hover:bg-transparent transition-colors"></div>
+                      <div className="w-full h-full flex items-center justify-center text-blue-300">
+                        <Users size={64} />
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white leading-tight group-hover:text-[#FFC107] transition-colors">
+                        {official.name}
+                      </h4>
+                      <p className="text-sm text-blue-200/60 mt-1 font-medium">{official.role}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+      </div>
     </Layout>
   );
 }

@@ -303,11 +303,11 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (activeTab === 'announcements') {
-      fetchAnnouncements();
-    } else if (activeTab === 'gallery') {
-      fetchGallery();
-    }
+      if (activeTab === 'announcements') {
+        fetchAnnouncements();
+      } else if (activeTab === 'gallery') {
+        fetchGallery();
+      }
   }, [activeTab]);
 
   const fileToDataUrl = (file: File) =>
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
     });
 
   const uploadFileViaServer = async (file: File, bucket: string, folder: string) => {
-    const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split('.').pop();
     const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
     const fileData = await fileToDataUrl(file);
 
@@ -338,7 +338,7 @@ export default function AdminDashboard() {
 
     if (!response.ok) {
       throw new Error(data.error || 'File upload failed');
-    }
+      }
 
     return data.publicUrl as string;
   };
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
-      router.push('/admin/login');
+    router.push('/admin/login');
     }
   };
 
@@ -826,7 +826,7 @@ export default function AdminDashboard() {
                               ))}
                             </div>
                           )}
-                        </div>
+                    </div>
                   </div>
                       <button
                         onClick={handleCreateAnnouncement}
@@ -1392,13 +1392,13 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-                <textarea
+                                <textarea
                   value={editingAnnouncement.description}
                   onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, description: e.target.value })}
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
+                    </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Add More Images (optional)</label>
                 <input

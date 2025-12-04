@@ -1,5 +1,95 @@
 @import "tailwindcss";
 
+:root {
+  --brand-blue: #053F85;
+  --brand-blue-dark: #022c5e;
+  --brand-gold: #FFC107;
+}
+
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  background-color: #053F85;
+  color: #ffffff;
+  overflow-x: hidden;
+  letter-spacing: -0.02em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #022c5e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FFC107;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD54F;
+}
+
+/* Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes mobile-menu-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-menu-enter {
+  animation: mobile-menu-in 0.25s ease-out forwards;
+}
+
+/* Bento Grid Card Hover */
+.bento-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 193, 7, 0.3);
 }
