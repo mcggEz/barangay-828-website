@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import Layout from '../components/Layout';
 import { Announcement } from '../lib/supabase';
 import { GetServerSideProps } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { ArrowRight, Users, Info, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowRight, Users, Info, Calendar } from 'lucide-react';
 
 const categoryStyles: Record<string, string> = {
   Health: 'bg-green-100 text-green-800 border border-green-200',
@@ -97,13 +96,13 @@ export default function Home({ announcements }: HomePageProps) {
           {announcements.length > 0 && (
             <div className="absolute bottom-0 w-full bg-[#022c5e] border-t border-white/10 py-4 overflow-hidden flex items-center">
               <div className="flex animate-marquee whitespace-nowrap gap-12 text-sm font-medium text-blue-200/60 uppercase tracking-widest">
-                {announcements.slice(0, 3).map((ann, idx) => (
+                {announcements.slice(0, 3).map((ann) => (
                   <React.Fragment key={ann.id}>
                     <span>📢 {ann.title}</span>
                     <span className="text-[#FFC107]">★</span>
                   </React.Fragment>
                 ))}
-                {announcements.slice(0, 3).map((ann, idx) => (
+                {announcements.slice(0, 3).map((ann) => (
                   <React.Fragment key={`dup-${ann.id}`}>
                     <span>📢 {ann.title}</span>
                     <span className="text-[#FFC107]">★</span>

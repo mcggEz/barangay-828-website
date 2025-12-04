@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { Announcement } from '../lib/supabase';
 import { GetServerSideProps } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { ArrowRight, MessageSquare } from 'lucide-react';
 
 interface AnnouncementsPageProps {
   announcements: Announcement[];

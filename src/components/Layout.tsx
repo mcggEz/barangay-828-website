@@ -2,7 +2,6 @@ import Navbar from './Navbar';
 import ChatButton from './ChatButton';
 import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface LayoutProps {
   children: ReactNode;
@@ -39,7 +38,7 @@ const Layout = ({ children }: LayoutProps) => {
           <div className="mb-12 pb-12 border-b border-white/10">
             <div className="flex items-center gap-4">
               <h2 className="text-4xl md:text-5xl tracking-tight text-blue-100/80 font-bold">
-                Let's build a better <br /> <span className="text-[#FFC107]">Community.</span>
+                Let&apos;s build a better <br /> <span className="text-[#FFC107]">Community.</span>
               </h2>
             </div>
           </div>
