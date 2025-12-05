@@ -91,16 +91,16 @@ const Navbar = () => {
         <div className="fixed inset-x-0 top-16 bg-[#022c5e] md:hidden z-40 border-t border-white/10 shadow-lg shadow-black/40 mobile-menu-enter">
           <div className="flex flex-col px-6 pt-6 pb-6 gap-6">
             <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
                   className="text-lg font-semibold text-white hover:text-[#FFC107] transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
             </div>
 
             <Link

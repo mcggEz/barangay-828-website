@@ -61,7 +61,7 @@ export default function Home({ announcements }: HomePageProps) {
             <div className="absolute top-[20%] left-[-10%] w-[60vw] h-[60vw] bg-[#FFC107]/10 rounded-full blur-[100px] animate-float" style={{ animationDelay: '2s' }}></div>
           </div>
 
-          <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col items-center lg:items-start justify-center gap-8" style={{ marginTop: '4rem', paddingTop: '2rem', paddingBottom: '2rem' }}>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full z-10 flex flex-col items-center lg:items-start justify-center gap-8">
             <div className="flex flex-col space-y-8 w-full lg:max-w-3xl">
               <Reveal>
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.02] tracking-tight text-balance mb-4">

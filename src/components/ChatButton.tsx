@@ -79,7 +79,7 @@ const ChatButton = () => {
     <div className={`fixed bottom-4 right-4 z-50 chat-button-container ${isOpen ? 'chat-open' : ''}`} style={{ zIndex: 9999 }}>
       {/* Chat Window */}
       {isOpen && (
-        <div className="absolute bottom-0 right-0 w-full sm:w-96 h-full sm:h-[500px] bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200 chat-container sm:chat-container max-w-[calc(100vw-1rem)] sm:max-w-none" style={{ 
+        <div className="absolute bottom-0 right-0 w-full sm:w-96 h-full sm:h-[500px] bg-white rounded-lg shadow-2xl flex flex-col border-b border-gray-200 chat-container sm:chat-container max-w-[calc(100vw-1rem)] sm:max-w-none" style={{ 
           maxHeight: 'calc(100vh - 1rem)', 
           minHeight: '300px',
           zIndex: 10000
